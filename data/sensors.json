@@ -1,0 +1,56 @@
+[
+    {
+        "name": "android.location.Location",
+        "displayName": "Location",
+        "parameters": [
+            {
+                "displayName": "latitude",
+                "name": "latitude",
+                "type": "number",
+                "comparators":["<=", ">=", "<", ">", "!=", "="],
+                "unit": "degrees"
+            },
+            {
+                "displayName": "longitude",
+                "name": "longitude",
+                "type": "number",
+                "comparators":["<=", ">=", "<", ">", "!=", "="],
+                "unit": "degrees"
+            }
+        ]
+    },
+    {
+        "name": "android.net.wifi.ScanResult",
+        "displayName": "Wifi",
+        "parameters": [
+            {
+                "displayName": "BSSID",
+                "name": "BSSID",
+                "type": "text",
+                "comparators":["="],
+                "unit":""
+            },
+            {
+                "displayName": "SSID",
+                "name": "SSID",
+                "type": "text",
+                "comparators":["="],
+                "unit":""
+            },
+            {
+                "displayName": "Capabilities",
+                "name": "capabilities",
+                "type": "text",
+                "comparators":[ "="],
+                "unit":""
+            },
+            {
+                "displayName": "Signal level",
+                "name": "level",
+                "type": "number",
+                "comparators":["<=", ">=", "<", ">", "!=", "="],
+                "unit":"dBm"
+            }
+        ]
+    }
+]
