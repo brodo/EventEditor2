@@ -1,109 +1,66 @@
 d3 = require('d3')
-window.d3 = d3
+createSidebar = require('./sidebar.js')
+_ = require('lodash')
 eventList = []
-
-createEvents = ->
-  
-  dragmove = (d,i) ->
-    d.x = d3.event.x 
-    d.y = d3.event.y 
-    d3.select(@).attr("x", d.x).attr("y", d.y)
-    d3.select("#eventHtml-#{i}").attr("x", d.x+5).attr("y", d.y+30)
-  
-  drag = d3.behavior.drag()
-    .origin(id)
-    .on("drag", dragmove)
-  
-  events = d3.select('#svgMain').selectAll('.event').data(eventList)
-  
-  events.enter()
-    .append('rect')
-      .attr('class', 'event')
-      .attr('x', (d)-> d.x )
-      .attr('y', (d)-> d.y)
-      .attr('width', 250)
-      .attr('height', 250)
-      .attr('rx', "20")
-      .attr('ry', "20")
-      .call(drag)
-      .append('text')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('class', 'eventTitle')
-        .text((d)-> d.displayName)
-  
-  eventsHtml = d3.select('#svgMain').selectAll('.eventHtml').data(eventList)
-  innerDiv = eventsHtml.enter()
-    .append('foreignObject')
-      .attr('id', (d,i)-> "eventHtml-#{i}")
-      .attr('class', 'eventHtml')
-      .attr('x', (d) -> d.x+5)
-      .attr('y', (d) -> d.y+30)
-      .attr('width', 245)
-      .attr('height', 200)
-        .append('xhtml:div')
-          .attr('class', 'eventInnerDiv')
-  innerDiv.append('input').attr('type', 'number')
-      
+connectionList = []
+eventWindow = require('./event_window.js')(eventList, connectionList)
+connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('basis')
 
 
 
-addEvent = (d,x,y) -> 
-  d.x = x-getMainRect().left-125
-  d.y  = y-getMainRect().top-125
-  eventList.push(d)
-  createEvents()
+update = ->
+  eventWindow.update(eventList)
+  d3.select('#svgMain').selectAll('.connector').data(connectionList)
+    .attr('d', (d) -> 
+      # target = if d.target != null 
+      #   eventList[d.target].andRect() 
+      # else 
+      #   _.last(d.nodes)
+      # target.fixed = true
+      connectorLine(d.nodes)
+    )
 
-createSidebar = (err, sensors) ->
-  dragstart = (d,i ) ->
-    rect = getRectForSensorIndex(i)
-    d3.select('#sidebar').append('div')
-      .attr('class', 'eventType dragging')
-      .style('position', 'absolute')
-      .style('left', "#{rect.left}px")
-      .style('top', "#{rect.top}px")
-      .text(()-> d.displayName)
 
-  dragmove = (d) ->
-    d3.select('.dragging')
-      .style('left', "#{d3.event.x}px")
-      .style('top', "#{d3.event.y}px")
-  
-  dragstop = (d)->
-    d3.select('.dragging').remove()
-    source = d3.event.sourceEvent
-    element = document.elementFromPoint(source.clientX, source.clientY)
-    if element.id == "svgMain" then addEvent(d, source.clientX,source.clientY)
-  
-  drag = d3.behavior.drag()
-    .origin(id)
-    .on("drag", dragmove)
-    .on("dragstart", dragstart)
-    .on("dragend", dragstop)
-  
-  d3.select('#sidebar').selectAll('.eventType').data(sensors).enter()
-    .append('div')
-      .attr('class', 'eventType')
-      .attr('id', (d,i)-> "eventType-#{i}")
-      .text((d)-> d.displayName)
-      .call(drag)
-  
-  d3.selectAll('.eventType').each((d, i) -> 
-    rect = getRectForSensorIndex(i)
-    d.x = rect.left
-    d.y = rect.top
-  )
+enter = ->
+  eventWindow.enter(eventList)
+  d3.select('#svgMain').selectAll('.connector').data(connectionList).enter()
+    .append('path')
+      .attr('class', 'connector')
+      .attr('stroke', 'black')
+      .attr('stroke-width', 3)
+      .attr('fill', 'none')
+      .attr('d', (d) -> 
+        connectorLine(d.nodes)
+      )
+  d3.select('#svgMain').selectAll('.connector').data(connectionList).enter()
+    .append('circle')
+    .attr('cx', (d)-> d.nodes[1].x)
+    .attr('cy', (d)-> d.nodes[1].y)
+    .attr('r', 15)
+
+exit = ->
+  eventWindow.exit(eventList)
+  d3.select('#svgMain').selectAll('.connector').data(connectionList).exit().remove()
+
+addEvent = (d,x,y)->
+  data = _.cloneDeep(d) 
+  data.x = Math.max(0,x-getMainRect().left-125)
+  data.y  = Math.max(0,y-getMainRect().top-125)
+  data.width = eventWindow.measures.eventWidth
+  data.height = eventWindow.measures.eventWidth 
+  data.andRect = -> 
+    x: @x + 5
+    y: @y + @height - eventWindow.measures.eventTitleHeight + 5
+  data.andRectMiddle = ->
+    x: @andRect().x + eventWindow.measures.combinatorButtonWidth / 2
+    y: @andRect().y + eventWindow.measures.combinatorButtonHeight / 2
+
+  eventList.push(data) 
+  enter()
 
   
-
-getRectForSensorIndex = (index) ->
-  currentElement = d3.select("#eventType-#{index}").node()
-  currentElement.getBoundingClientRect()
-
 getMainRect = ->
   d3.select('#svgMain').node().getBoundingClientRect()
-
-id = (x) -> x  
     
-createEvents()
-d3.json("http://localhost:8000/data/sensors.json", createSidebar)
+enter()
+d3.json("data/sensors.json", createSidebar(addEvent))

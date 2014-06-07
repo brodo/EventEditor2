@@ -36,7 +36,37 @@ body {
   color: #fff;
   width: 100%;
   height: 100%;
+  overflow: auto;
+  font-size: 1.5rem;
 }
 .eventTitle {
   font-size: 2rem;
+  fill: #fff;
+  text-anchor: middle;
+  cursor: move;
+}
+.eventTitleRect {
+  fill: #f46e8f;
+  cursor: move;
+}
+.leftResizeBar,
+.rightResizeBar {
+  cursor: ew-resize;
+  opacity: 0;
+}
+.topResizeBar,
+.bottomResizeBar {
+  cursor: ns-resize;
+  opacity: 0;
+}
+.andRect {
+  fill: #ae2c4c;
+}
+.andRect text {
+  color: #000;
+}
+.connector {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3;
 }
