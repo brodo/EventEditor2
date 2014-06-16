@@ -44,6 +44,9 @@ html, body
 .event
   fill: primaryColorLighter
 
+.eventHtml
+  overflow: auto
+
 .eventInnerDiv
   color:white
   width: 100%
@@ -69,14 +72,24 @@ html, body
   cursor: ns-resize
   opacity: 0
 
-.andRect
+.andRect, .followedByRect
   fill: secondaryColorDark
-
-.andRect text
-  color: black
 
 .connector
   fill: none
   stroke: black
   stroke-width: 3
 
+.connectorCircle
+  fill: secondaryColorDark
+
+.connectorText
+  text-anchor: middle
+  font-size:1.5rem
+  dominant-baseline: central
+
+.andLabel, .followedByLabel
+  text-anchor: middle
+  font-size:1.2rem
+  dominant-baseline: central
+  fill: white

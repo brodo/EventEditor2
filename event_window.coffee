@@ -1,60 +1,96 @@
 d3 = require('d3')
 util = require('./util.js')
+_ = require('lodash')
 d3.selection.prototype.moveToFront = -> @each(-> @parentNode.appendChild(@))
 measures = 
   eventHeight: 250
   eventWidth: 250
   eventBottomBarHeight: 30
   eventTitleHeight: 30
-  combinatorButtonWidth: 40
-  combinatorButtonHeight: 20
+  andCombinatorButtonWidth: 40
+  andCombinatorButtonHeight: 20  
+  followedByCombinatorButtonWidth: 70
+  followedByCombinatorButtonHeight: 20
 
 closeIconPoints = "438.393,374.595 319.757,255.977 438.378,137.348 
 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 
 73.622,374.625 137.352,438.393 256.002,319.734 374.652,438.378 "
 
-module.exports = (eventList, connectionList) ->
+module.exports = (eventList, connectionList, refresh) ->
   
-  dragAndRect = d3.behavior.drag()
-    .on("dragstart", (d,i)->
-      nodes = [1,2,3].map(-> d.andRectMiddle())
+  createCombinatorDragStart = (connectionType, nodePostion)-> (d,i)->
+    connection = connectionList.filter((e)-> (e.source == i or e.target == i) and e.type == connectionType)
+    if connection.length == 0
+      nodes = [1,2,3].map(-> nodePostion(d))
       connection =
         nodes: nodes
         target: null
-        source: i 
+        source: i
+        middleHasBeenDragged: false
+        type: connectionType
       connectionList.push(connection)
-      enter()
-    )
-    .on("drag", (d,i)->
-      connection = connectionList.filter((c)-> c.source == i)[0]
-      [start, middle, end] = connection.nodes
-      newMiddle = d3.interpolateObject(start, end)(0.5)
-      middle.x = newMiddle.x
-      middle.y = newMiddle.y
-      end.x = d3.event.x-2
-      end.y = d3.event.y-2
-      update()
-    ).on("dragend",(d,i)->
-      connection = connectionList.filter((c)-> c.source == i)[0]
-      [start, middle, end] = connection.nodes
-      element = d3.event.sourceEvent.toElement
-      while element != null and element.tagName != 'body' and element.id[0..4] != 'event'
-        element = element.parentElement
-      if element != null and element.tagName != 'body' and element.id != "event-#{i}"
-        connection.target = parseInt(element.id[6..], 10)
-        end.x = eventList[connection.target].andRectMiddle().x
-        end.y = eventList[connection.target].andRectMiddle().y
-      else 
-        connectionList.splice(connectionList.indexOf(connection), 1)
-      update()
-      exit()
+    else
+      connection[0].target = null
+      connection[0].source = i
+    enter()
+    refresh()
+
+  combinatorDrag = (connectionType) -> (d,i)->
+    connection = connectionList.filter((c)-> c.source == i and c.type == connectionType)[0]
+    [start, middle, end] = connection.nodes
+    newMiddle = d3.interpolateObject(start, end)(0.5)
+    middle.x = newMiddle.x
+    middle.y = newMiddle.y
+    end.x = d3.event.x-2
+    end.y = d3.event.y-2
+    refresh()
+    update()
+
+  createCombinatorDragEnd = (connectionType, nodePostion)-> (d,i)->
+    connection = connectionList.filter((c)-> c.source == i and c.type == connectionType)[0]
+    [start, middle, end] = connection.nodes
+    connection.target = null
+    element = d3.event.sourceEvent.toElement
+    while element != null and element.tagName != 'body' and element.id[0..4] != 'event'
+      element = element.parentElement
+    if element != null and element.tagName != 'body' and element.id != "event-#{i}"
+      target = parseInt(element.id[6..], 10)
+      index = _.findIndex(connectionList, (c)->
+        (c.source == i and c.target == target) or (c.source == target and c.target == i) 
+      )
+      if index != -1
+        connectionList.splice(index,1)
+      connection.target = target
+      position = nodePostion(eventList[connection.target])
+      end.x = position.x
+      end.y = position.y
+    else 
+      connectionList.splice(connectionList.indexOf(connection), 1)
+    exit()
+    refresh()
+    update()
+
+
+
+  dragAndRect = d3.behavior.drag()
+    .on("dragstart", createCombinatorDragStart("and", (d)-> d.andRectMiddle()))
+    .on("drag", combinatorDrag("and"))
+    .on("dragend",createCombinatorDragEnd("and", (d)-> d.andRectMiddle())
+      
     )
 
+  dragFollowedByRect = d3.behavior.drag()
+    .on("dragstart", createCombinatorDragStart("followedBy", (d)-> d.followedByRectMiddle()))
+    .on("drag", combinatorDrag("followedBy"))
+    .on("dragend",createCombinatorDragEnd("followedBy", (d)-> d.followedByRectMiddle()))
+
+
   dragmove = (data) ->
-    data.x = Math.max(0,d3.event.x)
-    data.y = Math.max(0,d3.event.y)
+    data.x = Math.max(0, d3.event.x)
+    data.y = Math.max(0, d3.event.y)
     d3.select(@.parentElement).moveToFront()
-    update() 
+    refresh()
+    update()
     
   drag = d3.behavior.drag()
     .origin(util.id)
@@ -63,26 +99,35 @@ module.exports = (eventList, connectionList) ->
   dragNorthSouth = d3.behavior.drag()
     .origin(util.id)
     .on("drag", (d)-> 
-      d.height += d3.event.dy
+      d.height = Math.max(d.height + d3.event.dy, 100)
+      refresh()
       update()
     )  
   dragEastWestRight = d3.behavior.drag()
     .origin(util.id)
     .on("drag", (d)-> 
-      d.width += d3.event.dx
+      d.width = Math.max(d.width + d3.event.dx, 150)
+      refresh()
       update()
     )  
 
   dragEastWestLeft = d3.behavior.drag()
     .origin(util.id)
     .on("drag", (d)-> 
-      d.width -= d3.event.dx
+      d.width = Math.max(d.width - d3.event.dx , 150) 
       d.x += d3.event.dx
+      refresh()
       update()
     )
+
   removeEvent = (d,i)-> 
     eventList.splice(i,1)
+    while true
+      indx = _.findIndex(connectionList, (c)-> c.source == i or c.target == i)
+      if indx == -1 then break
+      connectionList.splice(indx,1)
     exit()
+    refresh()
 
   enter = ->
     events = d3.select('.events').selectAll('.event').data(eventList)
@@ -119,16 +164,46 @@ module.exports = (eventList, connectionList) ->
       .attr('width', (d)-> d.width-10)
       .text((d)-> d.displayName)
       .call(drag)
+      .on('click', (d)-> d3.select(@.parentElement).moveToFront())
     
     eventGroupEnter.append('rect')
       .attr('class', 'andRect')
-      .attr('width', measures.combinatorButtonWidth)
-      .attr('height', measures.combinatorButtonHeight)
+      .attr('width', measures.andCombinatorButtonWidth)
+      .attr('height', measures.andCombinatorButtonHeight)
       .attr('rx', 5)
       .attr('dx', 5)
       .attr('y', (d)-> d.andRect().y)
       .attr('x', (d) -> d.andRect().x)
       .call(dragAndRect) 
+
+    eventGroupEnter.append('text')
+      .attr('class', 'andLabel')
+      .attr('width', measures.andCombinatorButtonWidth)
+      .attr('height', measures.andCombinatorButtonHeight)
+      .attr('y', (d)-> d.andRectMiddle().y )
+      .attr('x', (d) -> d.andRectMiddle().x)
+      .text('And')
+      .call(dragAndRect)    
+
+    eventGroupEnter.append('rect')
+      .attr('class', 'followedByRect')
+      .attr('width', measures.followedByCombinatorButtonWidth)
+      .attr('height', measures.followedByCombinatorButtonHeight)
+      .attr('rx', 5)
+      .attr('dx', 5)
+      .attr('y', (d)-> d.followedByRect().y)
+      .attr('x', (d) -> d.followedByRect().x)
+      .call(dragFollowedByRect) 
+
+    eventGroupEnter.append('text')
+      .attr('class', 'followedByLabel')
+      .attr('width', measures.followedByCombinatorButtonWidth)
+      .attr('height', measures.followedByCombinatorButtonHeight)
+      .attr('y', (d)-> d.followedByRectMiddle().y)
+      .attr('x', (d) -> d.followedByRectMiddle().x)
+      .text('Followed By')
+      .call(dragFollowedByRect)
+
 
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('id', (d,i)-> "eventHtml-#{i}")
@@ -140,12 +215,65 @@ module.exports = (eventList, connectionList) ->
         .append('xhtml:div')
           .attr('class', 'eventInnerDiv')
     
-    innerDiv.selectAll('.parameter').data((d)-> d.parameters ).enter()
+    paramDiv = innerDiv.selectAll('.parameter').data((d)-> d.parameters ).enter()
       .append('div')
         .attr('class', 'parameter')
-        .append('label')
-          .text((d) -> d.displayName)
-          .attr('for', (d,i) -> "param-#{i}")
+    
+    eventGroupEnter.selectAll('.parameter').append('label')
+      .text((d) -> if d.unit != null and d.unit != '' then "#{d.displayName} (#{d.unit}): " else "#{d.displayName}: ")
+      .attr('for', (d,i) -> "param-#{i}")
+
+    eventGroupEnter.selectAll('.parameter').append('span')
+      .attr('class', "param-middle")
+    
+    window.conditions = d3.selectAll('.event').data(eventList)
+      .selectAll('.param-middle').data((d)-> d.parameters)
+
+    conditions.selectAll('.combinator')
+      .data((d)->d.conditions.filter((c)->c.combinator != null))
+      .enter()
+      .append('select').attr('class', 'combinator')
+        .selectAll('.combinator-option')
+        .data((d)-> ['And', 'Or'])
+        .enter()
+        .append('option')
+           .attr('class', 'combinator-option')
+          .attr('value', (d)->d)
+          .text((d)->d)
+
+    conditions.selectAll('.comperator-select').data((d) -> d.conditions).enter()
+      .append('select')
+        .attr('class', 'comperator-select')
+        .selectAll('.comperator-option')
+        .data((d)-> d.comparators)
+        .enter()
+        .append('option')
+          .attr('class', 'comperator-option')
+          .attr('value', (d)-> d)
+          .text((d) -> d)
+
+    conditions.selectAll('.value-input').data((d) -> d.conditions).enter()
+      .append('input')
+        .attr('type', (d)-> d.type)
+        .attr('value', (d)-> d.value)
+        .attr('class', 'value-input')
+        .style('width', (d) -> "#{d.width}px")
+
+    eventGroupEnter.selectAll('.parameter').append('button')
+      .attr('class', "add-condition-button")
+      .text('+')
+      .on('click', (d)->
+        console.log(d)
+        length = d.conditions.length 
+        d.conditions.push(
+          comparators: d.comparators
+          type: d.type
+          value: null
+          combinator: (if length == 0 then null else 'and')
+          width: d.width
+        )
+        enter()
+      )
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
@@ -225,6 +353,18 @@ module.exports = (eventList, connectionList) ->
       .attr('y', (d)-> d.andRect().y)
       .attr('x', (d) -> d.andRect().x)
 
+    d3.selectAll('.andLabel')
+      .attr('y', (d)-> d.andRectMiddle().y )
+      .attr('x', (d) -> d.andRectMiddle().x )
+
+    d3.selectAll('.followedByRect')
+      .attr('y', (d)-> d.followedByRect().y)
+      .attr('x', (d) -> d.followedByRect().x)
+      
+    d3.selectAll('.followedByLabel')
+      .attr('y', (d)-> d.followedByRectMiddle().y )
+      .attr('x', (d) -> d.followedByRectMiddle().x )
+
   exit = ->
     events = d3.select('.events').selectAll('.event').data(eventList)
     events.exit().remove()
@@ -233,5 +373,3 @@ module.exports = (eventList, connectionList) ->
   enter: enter
   exit: exit
   measures: measures
-
-

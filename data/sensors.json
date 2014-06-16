@@ -8,14 +8,16 @@
                 "name": "latitude",
                 "type": "number",
                 "comparators":["<=", ">=", "<", ">", "!=", "="],
-                "unit": "degrees"
+                "unit": "degrees",
+                "width": 80
             },
             {
                 "displayName": "longitude",
                 "name": "longitude",
                 "type": "number",
                 "comparators":["<=", ">=", "<", ">", "!=", "="],
-                "unit": "degrees"
+                "unit": "degrees",
+                "width": 80
             }
         ]
     },
@@ -28,28 +30,32 @@
                 "name": "BSSID",
                 "type": "text",
                 "comparators":["="],
-                "unit":""
+                "unit":"",
+                "width": 100
             },
             {
                 "displayName": "SSID",
                 "name": "SSID",
                 "type": "text",
                 "comparators":["="],
-                "unit":""
+                "unit":"",
+                "width": 100
             },
             {
                 "displayName": "Capabilities",
                 "name": "capabilities",
                 "type": "text",
                 "comparators":[ "="],
-                "unit":""
+                "unit":"",
+                "width": 40
             },
             {
                 "displayName": "Signal level",
                 "name": "level",
                 "type": "number",
                 "comparators":["<=", ">=", "<", ">", "!=", "="],
-                "unit":"dBm"
+                "unit":"dBm",
+                "width": 40
             }
         ]
     }

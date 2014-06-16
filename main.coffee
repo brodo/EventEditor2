@@ -2,45 +2,95 @@ d3 = require('d3')
 createSidebar = require('./sidebar.js')
 _ = require('lodash')
 eventList = []
-connectionList = []
-eventWindow = require('./event_window.js')(eventList, connectionList)
-connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('basis')
+window.connectionList = []
 
+eventWindow = require('./event_window.js')(eventList, connectionList, ->
+  enter()
+  exit()
+  update()
+)
 
+connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('linear')
+
+dragConnector =  d3.behavior.drag()
+  .origin((d)-> d.nodes[1])
+  .on("drag", (d)->
+    d.nodes[1].x = Math.max(0, d3.event.x)
+    d.nodes[1].y = Math.max(0, d3.event.y)
+    d.middleHasBeenDragged = true
+    d3.select(@.parentElement).moveToFront()
+    update()
+  )
 
 update = ->
   eventWindow.update(eventList)
-  d3.select('#svgMain').selectAll('.connector').data(connectionList)
-    .attr('d', (d) -> 
-      # target = if d.target != null 
-      #   eventList[d.target].andRect() 
-      # else 
-      #   _.last(d.nodes)
-      # target.fixed = true
-      connectorLine(d.nodes)
-    )
+  connectionList.forEach((e)-> 
+    [start, middle, end] = e.nodes
+    source = eventList[e.source]
+    if e.type == "and"
+      start.x = source.andRectMiddle().x
+      start.y = source.andRectMiddle().y
+    else
+      start.x = source.followedByRectMiddle().x
+      start.y = source.followedByRectMiddle().y
+    if not e.middleHasBeenDragged
+      newMiddle = d3.interpolateObject(start, end)(0.5)
+      middle.x = newMiddle.x
+      middle.y = newMiddle.y
+    if e.target != null
+      target = eventList[e.target]
+      if e.type == "and"
+        end.x = target.andRectMiddle().x
+        end.y = target.andRectMiddle().y
+      else
+        end.x = target.followedByRectMiddle().x
+        end.y = target.followedByRectMiddle().y
+  )
 
+  d3.selectAll('.connectorPath').data(connectionList)
+    .attr('d', (d) -> connectorLine(d.nodes))
+  
+  d3.selectAll('.connectorCircle').data(connectionList)
+    .attr('cx', (d)-> d.nodes[1].x)
+    .attr('cy', (d)-> d.nodes[1].y)
+  
+  d3.selectAll('.connectorText').data(connectionList)
+    .attr('x', (d)-> d.nodes[1].x)
+    .attr('y', (d)-> d.nodes[1].y)
+    .text((d)-> if d.type == "and" then '⋀' else '→')
 
 enter = ->
   eventWindow.enter(eventList)
-  d3.select('#svgMain').selectAll('.connector').data(connectionList).enter()
-    .append('path')
-      .attr('class', 'connector')
-      .attr('stroke', 'black')
-      .attr('stroke-width', 3)
-      .attr('fill', 'none')
-      .attr('d', (d) -> 
-        connectorLine(d.nodes)
-      )
-  d3.select('#svgMain').selectAll('.connector').data(connectionList).enter()
-    .append('circle')
+  conn = d3.select('#svgMain').selectAll('.connector').data(connectionList)
+    .enter().append('g').attr('class', 'connector')
+  
+  conn.append('path')
+    .attr('class', 'connectorPath')
+    .attr('stroke', 'black')
+    .attr('stroke-width', 3)
+    .attr('fill', 'none')
+    .attr('d', (d)-> connectorLine(d.nodes))
+  
+  conn.append('circle')
+    .attr('class', 'connectorCircle')
     .attr('cx', (d)-> d.nodes[1].x)
     .attr('cy', (d)-> d.nodes[1].y)
-    .attr('r', 15)
+    .attr('r', 20)
+    .call(dragConnector)
+
+  conn.append('text')
+    .attr('class', 'connectorText')
+    .text((d)-> if d.type == "and" then '⋀' else '→')
+    .attr('x', (d)-> d.nodes[1].x)
+    .attr('y', (d)-> d.nodes[1].y)
+    .attr('width', 15)
+    .attr('height', 15)
+    .call(dragConnector)
+
 
 exit = ->
   eventWindow.exit(eventList)
-  d3.select('#svgMain').selectAll('.connector').data(connectionList).exit().remove()
+  d3.selectAll('.connector').data(connectionList).exit().remove()
 
 addEvent = (d,x,y)->
   data = _.cloneDeep(d) 
@@ -52,13 +102,20 @@ addEvent = (d,x,y)->
     x: @x + 5
     y: @y + @height - eventWindow.measures.eventTitleHeight + 5
   data.andRectMiddle = ->
-    x: @andRect().x + eventWindow.measures.combinatorButtonWidth / 2
-    y: @andRect().y + eventWindow.measures.combinatorButtonHeight / 2
+    x: @andRect().x + eventWindow.measures.andCombinatorButtonWidth / 2
+    y: @andRect().y + eventWindow.measures.andCombinatorButtonHeight / 2
+  data.followedByRect = -> 
+    x: @x + 5 + eventWindow.measures.andCombinatorButtonWidth + 5
+    y: @y + @height - eventWindow.measures.eventTitleHeight + 5
+  data.followedByRectMiddle = ->
+    x: @followedByRect().x + eventWindow.measures.followedByCombinatorButtonWidth / 2
+    y: @followedByRect().y + eventWindow.measures.followedByCombinatorButtonHeight / 2
 
+  for parameter in data.parameters
+    parameter.conditions = []
   eventList.push(data) 
   enter()
 
-  
 getMainRect = ->
   d3.select('#svgMain').node().getBoundingClientRect()
     

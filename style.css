@@ -32,6 +32,9 @@ body {
 .event {
   fill: #60d5ac;
 }
+.eventHtml {
+  overflow: auto;
+}
 .eventInnerDiv {
   color: #fff;
   width: 100%;
@@ -59,14 +62,27 @@ body {
   cursor: ns-resize;
   opacity: 0;
 }
-.andRect {
+.andRect,
+.followedByRect {
   fill: #ae2c4c;
-}
-.andRect text {
-  color: #000;
 }
 .connector {
   fill: none;
   stroke: #000;
   stroke-width: 3;
+}
+.connectorCircle {
+  fill: #ae2c4c;
+}
+.connectorText {
+  text-anchor: middle;
+  font-size: 1.5rem;
+  dominant-baseline: central;
+}
+.andLabel,
+.followedByLabel {
+  text-anchor: middle;
+  font-size: 1.2rem;
+  dominant-baseline: central;
+  fill: #fff;
 }
