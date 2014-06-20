@@ -234,6 +234,7 @@ module.exports = (eventList, connectionList, refresh) ->
           value: null
           combinator: (if length == 0 then null else 'and')
           width: d.width
+          comparator: d.comparators[0]
         )
         enter()
       )
@@ -268,7 +269,15 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('value', (d)-> d.value)
       .attr('class', 'valueInput')
       .style('width', (d) -> "#{d.width}px")
+      .on('input', (d)-> d.value = @value)
 
+    conditionsEnter.append('button')
+      .attr('class', 'deleteCondition')
+      .text('-')
+      .on('click', (d,i) ->
+        d3.select(@parentNode.parentNode).datum().conditions.splice(i,1)
+        exit()
+      )
 
 
     eventGroupEnter.append('rect')
@@ -364,6 +373,9 @@ module.exports = (eventList, connectionList, refresh) ->
   exit = ->
     events = d3.select('.events').selectAll('.event').data(eventList)
     events.exit().remove()
+    conditions = events.selectAll('.parameter').data((d)-> d.parameters)
+      .selectAll('.condition').data((d)-> d.conditions)
+      .exit().remove()
 
   update: update
   enter: enter
