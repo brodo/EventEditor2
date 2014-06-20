@@ -235,6 +235,7 @@ module.exports = (eventList, connectionList, refresh) ->
           combinator: (if length == 0 then null else 'and')
           width: d.width
           comparator: d.comparators[0]
+          id: Date.now()
         )
         enter()
       )
@@ -375,11 +376,12 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('x', (d) -> d.followedByRectMiddle().x )
 
   exit = ->
-    events = d3.select('.events').selectAll('.event').data(eventList)
+    events = d3.selectAll('.event').data(eventList)
     events.exit().remove()
-    conditions = events.selectAll('.parameter').data((d)-> d.parameters)
-      .selectAll('.condition').data((d)-> d.conditions)
-      .exit().remove()
+    window.exit = events.selectAll('.parameter').data((d)-> d.parameters)
+      .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
+      .exit()
+      .remove()
 
   update: update
   enter: enter
