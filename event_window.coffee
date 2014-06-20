@@ -204,6 +204,7 @@ module.exports = (eventList, connectionList, refresh) ->
 
 
     innerDiv = eventGroupEnter.append('foreignObject')
+      .attr('overflow', 'auto')
       .attr('id', (d,i)-> "eventHtml-#{i}")
       .attr('class', 'eventHtml')
       .attr('x', (d) -> d.x+5)
@@ -212,6 +213,8 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('height', (d)-> d.height-measures.eventBottomBarHeight-measures.eventTitleHeight)
         .append('xhtml:div')
           .attr('class', 'eventInnerDiv')
+          .style('width', (d)-> "#{d.width-10}px")
+          .style('height', (d)-> "#{d.height-measures.eventBottomBarHeight-measures.eventTitleHeight}px")
     
     parameterEnter = innerDiv.selectAll('.parameter').data((d)-> d.parameters ).enter()
       .append('div').attr('class', 'parameter')
@@ -240,7 +243,7 @@ module.exports = (eventList, connectionList, refresh) ->
         enter()
       )
     
-    window.conditionsEnter = d3.selectAll('.paramMiddle').selectAll('.condition')
+    conditionsEnter = d3.selectAll('.paramMiddle').selectAll('.condition')
       .data((d)-> d.conditions).enter()
         .append('div').attr('class', 'condition')
 
@@ -342,6 +345,10 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('width', (d)-> d.width-10)
       .attr('height', (d)-> d.height-50)
 
+    d3.selectAll('.eventInnerDiv')
+      .style('width', (d)-> "#{d.width-10}px")
+      .style('height', (d)-> "#{d.height-50}px}")
+
     d3.selectAll('.leftResizeBar')
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y)
@@ -378,7 +385,7 @@ module.exports = (eventList, connectionList, refresh) ->
   exit = ->
     events = d3.selectAll('.event').data(eventList)
     events.exit().remove()
-    window.exit = events.selectAll('.parameter').data((d)-> d.parameters)
+    events.selectAll('.parameter').data((d)-> d.parameters)
       .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
       .exit()
       .remove()
