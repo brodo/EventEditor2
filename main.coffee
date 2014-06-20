@@ -1,8 +1,10 @@
 d3 = require('d3')
 createSidebar = require('./sidebar.js')
 _ = require('lodash')
-eventList = []
+window.eventList = []
 window.connectionList = []
+window.d3 = d3
+window._ = _
 
 eventWindow = require('./event_window.js')(eventList, connectionList, ->
   enter()

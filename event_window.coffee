@@ -70,8 +70,6 @@ module.exports = (eventList, connectionList, refresh) ->
     refresh()
     update()
 
-
-
   dragAndRect = d3.behavior.drag()
     .on("dragstart", createCombinatorDragStart("and", (d)-> d.andRectMiddle()))
     .on("drag", combinatorDrag("and"))
@@ -121,11 +119,11 @@ module.exports = (eventList, connectionList, refresh) ->
     )
 
   removeEvent = (d,i)-> 
-    eventList.splice(i,1)
     while true
       indx = _.findIndex(connectionList, (c)-> c.source == i or c.target == i)
       if indx == -1 then break
       connectionList.splice(indx,1)
+    eventList.splice(i,1)
     exit()
     refresh()
 
@@ -215,55 +213,20 @@ module.exports = (eventList, connectionList, refresh) ->
         .append('xhtml:div')
           .attr('class', 'eventInnerDiv')
     
-    paramDiv = innerDiv.selectAll('.parameter').data((d)-> d.parameters ).enter()
-      .append('div')
-        .attr('class', 'parameter')
+    parameterEnter = innerDiv.selectAll('.parameter').data((d)-> d.parameters ).enter()
+      .append('div').attr('class', 'parameter')
     
-    eventGroupEnter.selectAll('.parameter').append('label')
+    parameterEnter.append('label')
       .text((d) -> if d.unit != null and d.unit != '' then "#{d.displayName} (#{d.unit}): " else "#{d.displayName}: ")
       .attr('for', (d,i) -> "param-#{i}")
 
-    eventGroupEnter.selectAll('.parameter').append('span')
-      .attr('class', "param-middle")
-    
-    window.conditions = d3.selectAll('.event').data(eventList)
-      .selectAll('.param-middle').data((d)-> d.parameters)
+    parameterEnter.append('span')
+      .attr('class', "paramMiddle")
 
-    conditions.selectAll('.combinator')
-      .data((d)->d.conditions.filter((c)->c.combinator != null))
-      .enter()
-      .append('select').attr('class', 'combinator')
-        .selectAll('.combinator-option')
-        .data((d)-> ['And', 'Or'])
-        .enter()
-        .append('option')
-           .attr('class', 'combinator-option')
-          .attr('value', (d)->d)
-          .text((d)->d)
-
-    conditions.selectAll('.comperator-select').data((d) -> d.conditions).enter()
-      .append('select')
-        .attr('class', 'comperator-select')
-        .selectAll('.comperator-option')
-        .data((d)-> d.comparators)
-        .enter()
-        .append('option')
-          .attr('class', 'comperator-option')
-          .attr('value', (d)-> d)
-          .text((d) -> d)
-
-    conditions.selectAll('.value-input').data((d) -> d.conditions).enter()
-      .append('input')
-        .attr('type', (d)-> d.type)
-        .attr('value', (d)-> d.value)
-        .attr('class', 'value-input')
-        .style('width', (d) -> "#{d.width}px")
-
-    eventGroupEnter.selectAll('.parameter').append('button')
-      .attr('class', "add-condition-button")
+    parameterEnter.append('button')
+      .attr('class', "addConditionButton")
       .text('+')
       .on('click', (d)->
-        console.log(d)
         length = d.conditions.length 
         d.conditions.push(
           comparators: d.comparators
@@ -274,6 +237,39 @@ module.exports = (eventList, connectionList, refresh) ->
         )
         enter()
       )
+    
+    window.conditionsEnter = d3.selectAll('.paramMiddle').selectAll('.condition')
+      .data((d)-> d.conditions).enter()
+        .append('div').attr('class', 'condition')
+
+    conditionsEnter.filter((d)-> d.combinator != null)
+      .append('select').attr('class',  'combinator')
+        .selectAll('.combinatorOption')
+        .data((d)-> ['And', 'Or'])
+        .enter()
+        .append('option')
+          .attr('class', 'combinatorOption')
+          .attr('value', (d)->d)
+          .text((d)->d)
+
+    conditionsEnter
+      .append('select')
+        .attr('class', 'comperatorSelect')
+        .selectAll('.comperatorOption')
+        .data((d)-> d.comparators)
+        .enter()
+        .append('option')
+          .attr('class', 'comperatorOption')
+          .attr('value', (d)-> d)
+          .text((d) -> d)
+
+    conditionsEnter.append('input')
+      .attr('type', (d)-> d.type)
+      .attr('value', (d)-> d.value)
+      .attr('class', 'valueInput')
+      .style('width', (d) -> "#{d.width}px")
+
+
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
