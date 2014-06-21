@@ -293,7 +293,7 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('class', 'eventName')
     
     eventName.append('label').text('Event Name:')
-    eventName.append('input')
+    eventName.append('input').on('input', (d)-> d.name = @value)
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
