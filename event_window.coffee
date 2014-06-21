@@ -215,8 +215,10 @@ module.exports = (eventList, connectionList, refresh) ->
           .attr('class', 'eventInnerDiv')
           .style('width', (d)-> "#{d.width-10}px")
           .style('height', (d)-> "#{d.height-measures.eventBottomBarHeight-measures.eventTitleHeight}px")
-    
-    parameterEnter = innerDiv.selectAll('.parameter').data((d)-> d.parameters ).enter()
+
+    parameters = innerDiv.append('div').attr('class', 'parameters')
+
+    parameterEnter = parameters.selectAll('.parameter').data((d)-> d.parameters ).enter()
       .append('div').attr('class', 'parameter')
     
     parameterEnter.append('label')
@@ -287,6 +289,11 @@ module.exports = (eventList, connectionList, refresh) ->
         exit()
       )
 
+    eventName = innerDiv.append('xhtml:div')
+      .attr('class', 'eventName')
+    
+    eventName.append('label').text('Event Name:')
+    eventName.append('input')
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
