@@ -241,6 +241,24 @@ module.exports = (eventList, connectionList, refresh) ->
           width: d.width
           comparator: d.comparators[0]
           id: Date.now()
+          isLink: false
+        )
+        enter()
+      )
+    parameterEnter.append('button')
+      .attr('class', "addLinkConditionButton")
+      .text('o')
+      .on('click', (d)->
+        length = d.conditions.length 
+        d.conditions.push(
+          comparators: d.comparators
+          type: d.type
+          value: null
+          combinator: (if length == 0 then null else 'and')
+          width: d.width
+          comparator: d.comparators[0]
+          id: Date.now()
+          isLink: true
         )
         enter()
       )
@@ -261,6 +279,19 @@ module.exports = (eventList, connectionList, refresh) ->
             .attr('value', (d)->d)
             .text((d)->d)
 
+    conditionsEnter.filter((d)-> d.isLink)
+      .append('span')
+        .attr('class', 'linkSelectors')
+        .append('select')
+          .attr('class', 'eventSelector')
+          .selectAll('.otherEventNames')
+          .data(eventList)
+          .enter()
+          .append('option')
+            .attr('class', 'otherEventNames')
+            .text((d)-> d.patternName)
+
+
     conditionsEnter
       .append('select')
         .attr('class', 'comparatorSelect')
@@ -272,7 +303,6 @@ module.exports = (eventList, connectionList, refresh) ->
             .attr('class', 'comparatorOption')
             .attr('value', (d)-> d)
             .text((d) -> d)
-
 
     conditionsEnter.append('input')
       .attr('type', (d)-> d.type)
@@ -293,7 +323,10 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('class', 'eventName')
     
     eventName.append('label').text('Event Name:')
-    eventName.append('input').on('input', (d)-> d.name = @value)
+    eventName.append('input').on('input', (d)-> 
+      d.patternName = @value
+      update()
+    )
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
@@ -350,7 +383,7 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('x', (d) -> d.x+5)
       .attr('y', (d) -> d.y+30)
       .attr('width', (d)-> d.width-10)
-      .attr('height', (d)-> d.height-50)
+      .attr('height', (d)-> d.height-60)
 
     d3.selectAll('.eventInnerDiv')
       .style('width', (d)-> "#{d.width-10}px")
@@ -388,6 +421,9 @@ module.exports = (eventList, connectionList, refresh) ->
     d3.selectAll('.followedByLabel')
       .attr('y', (d)-> d.followedByRectMiddle().y )
       .attr('x', (d) -> d.followedByRectMiddle().x )
+
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames').data(eventList)
+      .text((d)-> d.patternName)
 
   exit = ->
     events = d3.selectAll('.event').data(eventList)
