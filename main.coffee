@@ -5,6 +5,7 @@ window.eventList = []
 window.connectionList = []
 window.d3 = d3
 window._ = _
+eventCount = 0
 
 eventWindow = require('./event_window.js')(eventList, connectionList, ->
   enter()
@@ -95,11 +96,14 @@ exit = ->
   d3.selectAll('.connector').data(connectionList).exit().remove()
 
 addEvent = (d,x,y)->
-  data = _.cloneDeep(d) 
+  eventCount++
+  data = _.cloneDeep(d)
+  data.id = Date.now()
   data.x = Math.max(0,x-getMainRect().left-125)
   data.y  = Math.max(0,y-getMainRect().top-125)
   data.width = eventWindow.measures.eventWidth
   data.height = eventWindow.measures.eventWidth 
+  data.patternName = "#{data.displayName}##{eventCount}"
   data.andRect = -> 
     x: @x + 5
     y: @y + @height - eventWindow.measures.eventTitleHeight + 5
@@ -117,6 +121,7 @@ addEvent = (d,x,y)->
     parameter.conditions = []
   eventList.push(data) 
   enter()
+  update()
 
 getMainRect = ->
   d3.select('#svgMain').node().getBoundingClientRect()

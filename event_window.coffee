@@ -73,9 +73,7 @@ module.exports = (eventList, connectionList, refresh) ->
   dragAndRect = d3.behavior.drag()
     .on("dragstart", createCombinatorDragStart("and", (d)-> d.andRectMiddle()))
     .on("drag", combinatorDrag("and"))
-    .on("dragend",createCombinatorDragEnd("and", (d)-> d.andRectMiddle())
-      
-    )
+    .on("dragend",createCombinatorDragEnd("and", (d)-> d.andRectMiddle()))
 
   dragFollowedByRect = d3.behavior.drag()
     .on("dragstart", createCombinatorDragStart("followedBy", (d)-> d.followedByRectMiddle()))
@@ -128,7 +126,7 @@ module.exports = (eventList, connectionList, refresh) ->
     refresh()
 
   enter = ->
-    events = d3.select('.events').selectAll('.event').data(eventList)
+    events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     eventGroupEnter = events.enter().append('g')
       .attr('class', 'event')
       .attr('id', (d,i)-> "event-#{i}")
@@ -231,7 +229,7 @@ module.exports = (eventList, connectionList, refresh) ->
     parameterEnter.append('button')
       .attr('class', "addConditionButton")
       .text('+')
-      .on('click', (d)->
+      .on('click', (d,i)->
         length = d.conditions.length 
         d.conditions.push(
           comparators: d.comparators
@@ -242,13 +240,15 @@ module.exports = (eventList, connectionList, refresh) ->
           comparator: d.comparators[0]
           id: Date.now()
           isLink: false
+          index: length
+          parentIndex: i
         )
         enter()
       )
     parameterEnter.append('button')
       .attr('class', "addLinkConditionButton")
       .text('o')
-      .on('click', (d)->
+      .on('click', (d, i)->
         length = d.conditions.length 
         d.conditions.push(
           comparators: d.comparators
@@ -259,6 +259,8 @@ module.exports = (eventList, connectionList, refresh) ->
           comparator: d.comparators[0]
           id: Date.now()
           isLink: true
+          index: length
+          parentIndex: i
         )
         enter()
       )
@@ -285,11 +287,13 @@ module.exports = (eventList, connectionList, refresh) ->
         .append('select')
           .attr('class', 'eventSelector')
           .selectAll('.otherEventNames')
-          .data(eventList)
-          .enter()
+          .data((d)-> 
+            eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
+          ).enter()
           .append('option')
             .attr('class', 'otherEventNames')
             .text((d)-> d.patternName)
+
 
 
     conditionsEnter
@@ -326,7 +330,8 @@ module.exports = (eventList, connectionList, refresh) ->
     eventName.append('input').on('input', (d)-> 
       d.patternName = @value
       update()
-    )
+    ).attr('class', 'patterNameInput')
+    .attr('value',(d)-> d.patternName)
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
@@ -353,7 +358,7 @@ module.exports = (eventList, connectionList, refresh) ->
       .call(dragNorthSouth)
 
   update = ->
-    events = d3.select('.events').selectAll('.event').data(eventList)
+    events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     events
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y)
@@ -422,11 +427,14 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('y', (d)-> d.followedByRectMiddle().y )
       .attr('x', (d) -> d.followedByRectMiddle().x )
 
-    d3.selectAll('.eventSelector').selectAll('.otherEventNames').data(eventList)
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
+      .data((d)-> 
+        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
+      )
       .text((d)-> d.patternName)
 
   exit = ->
-    events = d3.selectAll('.event').data(eventList)
+    events = d3.selectAll('.event').data(eventList, (d)-> d.id)
     events.exit().remove()
     events.selectAll('.parameter').data((d)-> d.parameters)
       .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
