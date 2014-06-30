@@ -28,6 +28,7 @@ module.exports = (eventList, connectionList, refresh) ->
         source: i
         middleHasBeenDragged: false
         type: connectionType
+        id: Date.now()
       connectionList.push(connection)
     else
       connection[0].target = null
@@ -201,6 +202,8 @@ module.exports = (eventList, connectionList, refresh) ->
       .call(dragFollowedByRect)
 
 
+
+
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('overflow', 'auto')
       .attr('id', (d,i)-> "eventHtml-#{i}")
@@ -245,8 +248,12 @@ module.exports = (eventList, connectionList, refresh) ->
         )
         enter()
       )
+
+
+      
     parameterEnter.append('button')
       .attr('class', "addLinkConditionButton")
+      .attr('disabled', true)
       .text('o')
       .on('click', (d, i)->
         length = d.conditions.length 
@@ -264,6 +271,8 @@ module.exports = (eventList, connectionList, refresh) ->
         )
         enter()
       )
+    d3.selectAll('.addLinkConditionButton').filter(()-> eventList.length > 1)
+      .attr('disabled', null)
     
     conditionsEnter = d3.selectAll('.paramMiddle').selectAll('.condition')
       .data((d)-> d.conditions).enter()
@@ -357,6 +366,8 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('height', 3)
       .call(dragNorthSouth)
 
+
+
   update = ->
     events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     events
@@ -432,6 +443,8 @@ module.exports = (eventList, connectionList, refresh) ->
         eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
       )
       .text((d)-> d.patternName)
+
+
 
   exit = ->
     events = d3.selectAll('.event').data(eventList, (d)-> d.id)

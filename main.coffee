@@ -40,7 +40,7 @@ update = ->
       newMiddle = d3.interpolateObject(start, end)(0.5)
       middle.x = newMiddle.x
       middle.y = newMiddle.y
-    if e.target != null
+    if (typeof e.target) != 'undefined' and e.target != null
       target = eventList[e.target]
       if e.type == "and"
         end.x = target.andRectMiddle().x
@@ -50,21 +50,21 @@ update = ->
         end.y = target.followedByRectMiddle().y
   )
 
-  d3.selectAll('.connectorPath').data(connectionList)
+  d3.selectAll('.connectorPath').data(connectionList, (d)-> d.id)
     .attr('d', (d) -> connectorLine(d.nodes))
   
-  d3.selectAll('.connectorCircle').data(connectionList)
+  d3.selectAll('.connectorCircle').data(connectionList, (d)-> d.id)
     .attr('cx', (d)-> d.nodes[1].x)
     .attr('cy', (d)-> d.nodes[1].y)
   
-  d3.selectAll('.connectorText').data(connectionList)
+  d3.selectAll('.connectorText').data(connectionList, (d)-> d.id)
     .attr('x', (d)-> d.nodes[1].x)
     .attr('y', (d)-> d.nodes[1].y)
     .text((d)-> if d.type == "and" then '⋀' else '→')
 
 enter = ->
   eventWindow.enter(eventList)
-  conn = d3.select('#svgMain').selectAll('.connector').data(connectionList)
+  conn = d3.select('#svgMain').selectAll('.connector').data(connectionList, (d)-> d.id)
     .enter().append('g').attr('class', 'connector')
   
   conn.append('path')
@@ -93,7 +93,7 @@ enter = ->
 
 exit = ->
   eventWindow.exit(eventList)
-  d3.selectAll('.connector').data(connectionList).exit().remove()
+  d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
 addEvent = (d,x,y)->
   eventCount++
