@@ -52,7 +52,7 @@ module.exports = (eventList, connectionList, refresh) ->
     [start, middle, end] = connection.nodes
     connection.target = null
     element = d3.event.sourceEvent.toElement
-    while element != null and element.tagName != 'body' and element.id[0..4] != 'event'
+    while element != null and element.tagName != 'body' and element.id[0..5] != 'event-'
       element = element.parentElement
     if element != null and element.tagName != 'body' and element.id != "event-#{i}"
       target = parseInt(element.id[6..], 10)
