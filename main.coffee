@@ -119,6 +119,7 @@ addEvent = (d,x,y)->
 
   for parameter in data.parameters
     parameter.conditions = []
+    parameter.parentId = data.id
   eventList.push(data) 
   enter()
   update()

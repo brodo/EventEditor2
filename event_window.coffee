@@ -256,7 +256,9 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('disabled', true)
       .text('o')
       .on('click', (d, i)->
-        length = d.conditions.length 
+        length = d.conditions.length
+        console.log("OtherEvent:")
+        console.dir(eventList.filter((e)-> e.id != d.parentId)[0]) 
         d.conditions.push(
           comparators: d.comparators
           type: d.type
@@ -268,6 +270,7 @@ module.exports = (eventList, connectionList, refresh) ->
           isLink: true
           index: length
           parentIndex: i
+          otherEvent: eventList.filter((e)-> e.id != d.parentId)[0].id
         )
         enter()
       )
@@ -290,18 +293,37 @@ module.exports = (eventList, connectionList, refresh) ->
             .attr('value', (d)->d)
             .text((d)->d)
 
-    conditionsEnter.filter((d)-> d.isLink)
+    linkSelectors = conditionsEnter.filter((d)-> d.isLink)
       .append('span')
         .attr('class', 'linkSelectors')
-        .append('select')
-          .attr('class', 'eventSelector')
-          .selectAll('.otherEventNames')
-          .data((d)-> 
-            eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
-          ).enter()
-          .append('option')
-            .attr('class', 'otherEventNames')
-            .text((d)-> d.patternName)
+    
+    linkSelectors.append('select')
+      .attr('class', 'eventSelector')
+      .on('change', (d)->d.otherEvent = @value)
+      .selectAll('.otherEventNames')
+      .data((d)-> 
+        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
+      ).enter()
+      .append('option')
+        .attr('class', 'otherEventNames')
+        .attr('value', (d)-> d.id)
+        .text((d)-> d.patternName)
+
+
+    linkSelectors.append('select')
+      .attr('class', 'eventPropertySelector')
+      .selectAll('.otherEventProperty')
+      .data((d)-> 
+        if d.otherEvent == null then return []
+        console.dir(d)
+        otherEvent = eventList.filter((e)-> e.id == d.otherEvent)[0]
+        otherEvent.parameters
+      ).enter()
+        .append('option')
+          .attr('class', 'otherEventProperty')
+          .attr('value', (d)-> d.id)
+          .text((d)-> d.displayName)
+
 
 
 
