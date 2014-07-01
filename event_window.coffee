@@ -461,11 +461,19 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('x', (d) -> d.followedByRectMiddle().x )
 
     d3.selectAll('.eventSelector').selectAll('.otherEventNames')
-      .data((d)-> 
+      .data((d)->
         eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
       )
       .text((d)-> d.patternName)
 
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
+      .data((d)->
+        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
+      ).enter()
+        .append('option')
+        .attr('class', 'otherEventNames')
+        .attr('value', (d)-> d.id)
+        .text((d)-> d.patternName)
 
 
   exit = ->
