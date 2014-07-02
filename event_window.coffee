@@ -7,10 +7,12 @@ measures =
   eventWidth: 250
   eventBottomBarHeight: 30
   eventTitleHeight: 30
+  eventNameHeight: 25
   andCombinatorButtonWidth: 40
   andCombinatorButtonHeight: 20  
   followedByCombinatorButtonWidth: 70
   followedByCombinatorButtonHeight: 20
+
 
 closeIconPoints = "438.393,374.595 319.757,255.977 438.378,137.348 
 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 
@@ -201,9 +203,6 @@ module.exports = (eventList, connectionList, refresh) ->
       .text('Followed By')
       .call(dragFollowedByRect)
 
-
-
-
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('overflow', 'auto')
       .attr('id', (d,i)-> "eventHtml-#{i}")
@@ -216,6 +215,23 @@ module.exports = (eventList, connectionList, refresh) ->
           .attr('class', 'eventInnerDiv')
           .style('width', (d)-> "#{d.width-10}px")
           .style('height', (d)-> "#{d.height-measures.eventBottomBarHeight-measures.eventTitleHeight}px")
+
+    eventName = eventGroupEnter.append('foreignObject')
+      .attr('class', 'eventNameContainer')
+      .attr('x', (d)-> d.nameContainer().y)
+      .attr('y', (d)-> d.nameContainer().x)
+      .attr('width', (d)-> d.width-10)
+      .attr('height', measures.eventNameHeight)
+        .append('xhtml:div')
+        .attr('class', 'eventName')
+    
+    eventName.append('label').text('Event Name:')
+    eventName.append('input').on('input', (d)-> 
+        d.patternName = @value
+        update()
+      )
+      .attr('class', 'patterNameInput')
+      .attr('value',(d)-> d.patternName)
 
     parameters = innerDiv.append('div').attr('class', 'parameters')
 
@@ -354,15 +370,6 @@ module.exports = (eventList, connectionList, refresh) ->
         exit()
       )
 
-    eventName = innerDiv.append('xhtml:div')
-      .attr('class', 'eventName')
-    
-    eventName.append('label').text('Event Name:')
-    eventName.append('input').on('input', (d)-> 
-      d.patternName = @value
-      update()
-    ).attr('class', 'patterNameInput')
-    .attr('value',(d)-> d.patternName)
 
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
@@ -398,6 +405,10 @@ module.exports = (eventList, connectionList, refresh) ->
       .attr('width', (d)-> d.width)
       .attr('height', (d)-> d.height)
 
+    d3.selectAll('.eventNameContainer')
+      .attr('x', (d) -> d.nameContainer().x)
+      .attr('y', (d) -> d.nameContainer().y)
+
     d3.selectAll('.eventRect')
       .attr('width', (d)-> d.width)
       .attr('height', (d)-> d.height)
@@ -425,7 +436,7 @@ module.exports = (eventList, connectionList, refresh) ->
 
     d3.selectAll('.eventInnerDiv')
       .style('width', (d)-> "#{d.width-10}px")
-      .style('height', (d)-> "#{d.height-50}px}")
+      .style('height', (d)->"#{d.height-70}px")
 
     d3.selectAll('.leftResizeBar')
       .attr('x', (d) -> d.x)

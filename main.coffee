@@ -116,6 +116,9 @@ addEvent = (d,x,y)->
   data.followedByRectMiddle = ->
     x: @followedByRect().x + eventWindow.measures.followedByCombinatorButtonWidth / 2
     y: @followedByRect().y + eventWindow.measures.followedByCombinatorButtonHeight / 2
+  data.nameContainer = ->
+    x: @x + 10
+    y: @y + @height - eventWindow.measures.eventNameHeight - eventWindow.measures.eventBottomBarHeight
 
   for parameter in data.parameters
     parameter.conditions = []
