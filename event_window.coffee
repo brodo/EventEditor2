@@ -273,8 +273,6 @@ module.exports = (eventList, connectionList, refresh) ->
       .text('o')
       .on('click', (d, i)->
         length = d.conditions.length
-        console.log("OtherEvent:")
-        console.dir(eventList.filter((e)-> e.id != d.parentId)[0]) 
         d.conditions.push(
           comparators: d.comparators
           type: d.type
@@ -326,19 +324,20 @@ module.exports = (eventList, connectionList, refresh) ->
         .text((d)-> d.patternName)
 
 
-    linkSelectors.append('select')
+    eventPropertyStelectors = linkSelectors.append('select')
       .attr('class', 'eventPropertySelector')
       .selectAll('.otherEventProperty')
       .data((d)-> 
         if d.otherEvent == null then return []
-        console.dir(d)
         otherEvent = eventList.filter((e)-> e.id == d.otherEvent)[0]
         otherEvent.parameters
-      ).enter()
-        .append('option')
-          .attr('class', 'otherEventProperty')
-          .attr('value', (d)-> d.id)
-          .text((d)-> d.displayName)
+      )
+
+    eventPropertyStelectors.enter()
+      .append('option')
+        .attr('class', 'otherEventProperty')
+        .attr('value', (d)-> d.id)
+        .text((d)-> d.displayName)
 
 
 
@@ -492,6 +491,13 @@ module.exports = (eventList, connectionList, refresh) ->
     events.exit().remove()
     events.selectAll('.parameter').data((d)-> d.parameters)
       .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
+      .exit()
+      .remove()
+
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
+      .data((d)->
+        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
+      )
       .exit()
       .remove()
 
