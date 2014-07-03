@@ -1,6 +1,10 @@
 d3 = require('d3')
-module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEvent, update, exit) -> 
-  (eventList) ->
+util = require('./util.coffee')
+dragLib = require('./event_window_drag.coffee')
+module.exports = (connectionList, eventList, measures, closeIconPoints, removeEvent, update, exit, refreshMain) ->
+  drag = dragLib(connectionList, eventList, update, exit, refreshMain)
+  () ->
+    console.log("%c [EventWindow] %cEnter what??", util.greenItalic, util.bold)
     events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     eventGroupEnter = events.enter().append('g')
       .attr('class', 'event')
@@ -19,8 +23,8 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('height', measures.eventTitleHeight)
       .attr('x', (d)-> d.x)
       .attr('y', (d)-> d.y)
-      .call(drag)
-      .on('click', (d)-> d3.select(@.parentElement).moveToFront())
+      .on('click', (d)-> d3.select(@parentElement).moveToFront())
+      .call(drag.drag)
 
     eventGroupEnter.append('polygon')
       .attr('class', 'closeButton')
@@ -34,8 +38,8 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('x', (d) -> d.x + d.width/2)
       .attr('width', (d)-> d.width-10)
       .text((d)-> d.displayName)
-      .call(drag)
-      .on('click', (d)-> d3.select(@.parentElement).moveToFront())
+      .on('click', (d)-> d3.select(@parentElement).moveToFront())
+      .call(drag.drag)
     
     eventGroupEnter.append('rect')
       .attr('class', 'andRect')
@@ -45,7 +49,7 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('dx', 5)
       .attr('y', (d)-> d.andRect().y)
       .attr('x', (d) -> d.andRect().x)
-      .call(dragAndRect) 
+      .call(drag.dragAndRect) 
 
     eventGroupEnter.append('text')
       .attr('class', 'andLabel')
@@ -54,7 +58,7 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('y', (d)-> d.andRectMiddle().y )
       .attr('x', (d) -> d.andRectMiddle().x)
       .text('And')
-      .call(dragAndRect)    
+      .call(drag.dragAndRect)    
 
     eventGroupEnter.append('rect')
       .attr('class', 'followedByRect')
@@ -64,7 +68,7 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('dx', 5)
       .attr('y', (d)-> d.followedByRect().y)
       .attr('x', (d) -> d.followedByRect().x)
-      .call(dragFollowedByRect) 
+      .call(drag.dragFollowedByRect) 
 
     eventGroupEnter.append('text')
       .attr('class', 'followedByLabel')
@@ -73,7 +77,7 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('y', (d)-> d.followedByRectMiddle().y)
       .attr('x', (d) -> d.followedByRectMiddle().x)
       .text('Followed By')
-      .call(dragFollowedByRect)
+      .call(drag.dragFollowedByRect)
 
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('overflow', 'auto')
@@ -136,9 +140,7 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
         )
         enter()
       )
-
-
-      
+  
     parameterEnter.append('button')
       .attr('class', "addLinkConditionButton")
       .attr('disabled', true)
@@ -185,7 +187,10 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
     
     linkSelectors.append('select')
       .attr('class', 'eventSelector')
-      .on('change', (d)->d.otherEvent = @value)
+      .on('change', (d)->
+        update()
+        d.otherEvent = @value
+      )
       .selectAll('.otherEventNames')
       .data((d)-> 
         eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
@@ -210,9 +215,6 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
         .attr('class', 'otherEventProperty')
         .attr('value', (d)-> d.id)
         .text((d)-> d.displayName)
-
-
-
 
     conditionsEnter
       .append('select')
@@ -241,14 +243,13 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
         exit()
       )
 
-
     eventGroupEnter.append('rect')
       .attr('class', 'leftResizeBar')
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y)
       .attr('width', 3)
       .attr('height', (d) -> d.height)
-      .call(dragEastWestLeft)
+      .call(drag.dragEastWestLeft)
 
     eventGroupEnter.append('rect')
       .attr('class', 'rightResizeBar')
@@ -256,7 +257,7 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('y', (d) -> d.y)
       .attr('width', 3)
       .attr('height', (d) -> d.height)
-      .call(dragEastWestRight)
+      .call(drag.dragEastWestRight)
 
     eventGroupEnter.append('rect')
       .attr('class', 'bottomResizeBar')
@@ -264,16 +265,8 @@ module.exports = (measures, drag, dragFollowedByRect, closeIconPoints, removeEve
       .attr('y', (d) -> d.y+d.height)
       .attr('width', (d)-> d.width)
       .attr('height', 3)
-      .call(dragNorthSouth)
+      .call(drag.dragNorthSouth)
 
-    # otherEvents.enter()
-    #     .append('option')
-    #     .attr('class', 'otherEventNames')
-    #     .attr('value', (d)-> d.id)
-    #     .text((d)-> d.patternName)
-
-    d3.selectAll('.eventPropertySelector').selectAll('.otherEventProperty')
-      .attr('value', (d)-> d.name)
-      .text((d)-> d.displayName)
-
-
+    # d3.selectAll('.eventPropertySelector').selectAll('.otherEventProperty')
+    #   .attr('value', (d)-> d.name)
+    #   .text((d)-> d.displayName)

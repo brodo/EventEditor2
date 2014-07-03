@@ -1,5 +1,5 @@
 d3 = require('d3')
-createSidebar = require('./sidebar.js')
+createSidebar = require('./sidebar.coffee')
 _ = require('lodash')
 window.eventList = []
 window.connectionList = []
@@ -7,7 +7,7 @@ window.d3 = d3
 window._ = _
 eventCount = 0
 
-eventWindow = require('./event_window.js')(eventList, connectionList, ->
+eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
   enter()
   exit()
   update()
@@ -63,7 +63,7 @@ update = ->
     .text((d)-> if d.type == "and" then '⋀' else '→')
 
 enter = ->
-  eventWindow.enter(eventList)
+  eventWindow.enter()
   conn = d3.select('#svgMain').selectAll('.connector').data(connectionList, (d)-> d.id)
     .enter().append('g').attr('class', 'connector')
   
