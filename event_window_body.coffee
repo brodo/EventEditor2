@@ -1,84 +1,7 @@
 d3 = require('d3')
 util = require('./util.coffee')
-dragLib = require('./event_window_drag.coffee')
-module.exports = (connectionList, eventList, measures, closeIconPoints, removeEvent, update, exit, refreshMain) ->
-  drag = dragLib(connectionList, eventList, update, exit, refreshMain)
-  () ->
-    console.log("%c [EventWindow] %cEnter what??", util.greenItalic, util.bold)
-    events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
-    eventGroupEnter = events.enter().append('g')
-      .attr('class', 'event')
-      .attr('id', (d,i)-> "event-#{i}")
-
-    eventGroupEnter.append('rect')
-      .attr('class', 'eventRect')
-      .attr('width', (d)-> d.width)
-      .attr('height', (d)-> d.height)
-      .attr('x', (d)-> d.x)
-      .attr('y', (d)-> d.y)
-    
-    eventGroupEnter.append('rect')
-      .attr('class', 'eventTitleRect')
-      .attr('width', (d)-> d.width)
-      .attr('height', measures.eventTitleHeight)
-      .attr('x', (d)-> d.x)
-      .attr('y', (d)-> d.y)
-      .on('click', (d)-> d3.select(@parentElement).moveToFront())
-      .call(drag.drag)
-
-    eventGroupEnter.append('polygon')
-      .attr('class', 'closeButton')
-      .attr('points', closeIconPoints)
-      .attr('transform', (d)-> "translate(#{d.x+d.width-30},#{d.y+3}) scale(0.05)")
-      .on('click', removeEvent)
-
-    eventGroupEnter.append('text')
-      .attr('class', 'eventTitle')
-      .attr('y', (d)-> d.y + 25)
-      .attr('x', (d) -> d.x + d.width/2)
-      .attr('width', (d)-> d.width-10)
-      .text((d)-> d.displayName)
-      .on('click', (d)-> d3.select(@parentElement).moveToFront())
-      .call(drag.drag)
-    
-    eventGroupEnter.append('rect')
-      .attr('class', 'andRect')
-      .attr('width', measures.andCombinatorButtonWidth)
-      .attr('height', measures.andCombinatorButtonHeight)
-      .attr('rx', 5)
-      .attr('dx', 5)
-      .attr('y', (d)-> d.andRect().y)
-      .attr('x', (d) -> d.andRect().x)
-      .call(drag.dragAndRect) 
-
-    eventGroupEnter.append('text')
-      .attr('class', 'andLabel')
-      .attr('width', measures.andCombinatorButtonWidth)
-      .attr('height', measures.andCombinatorButtonHeight)
-      .attr('y', (d)-> d.andRectMiddle().y )
-      .attr('x', (d) -> d.andRectMiddle().x)
-      .text('And')
-      .call(drag.dragAndRect)    
-
-    eventGroupEnter.append('rect')
-      .attr('class', 'followedByRect')
-      .attr('width', measures.followedByCombinatorButtonWidth)
-      .attr('height', measures.followedByCombinatorButtonHeight)
-      .attr('rx', 5)
-      .attr('dx', 5)
-      .attr('y', (d)-> d.followedByRect().y)
-      .attr('x', (d) -> d.followedByRect().x)
-      .call(drag.dragFollowedByRect) 
-
-    eventGroupEnter.append('text')
-      .attr('class', 'followedByLabel')
-      .attr('width', measures.followedByCombinatorButtonWidth)
-      .attr('height', measures.followedByCombinatorButtonHeight)
-      .attr('y', (d)-> d.followedByRectMiddle().y)
-      .attr('x', (d) -> d.followedByRectMiddle().x)
-      .text('Followed By')
-      .call(drag.dragFollowedByRect)
-
+module.exports = (refreshMain, d3Functions, measures) ->
+  enter = (eventGroupEnter) ->
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('overflow', 'auto')
       .attr('id', (d,i)-> "eventHtml-#{i}")
@@ -91,24 +14,6 @@ module.exports = (connectionList, eventList, measures, closeIconPoints, removeEv
           .attr('class', 'eventInnerDiv')
           .style('width', (d)-> "#{d.width-10}px")
           .style('height', (d)-> "#{d.height-measures.eventBottomBarHeight-measures.eventTitleHeight}px")
-
-    eventName = eventGroupEnter.append('foreignObject')
-      .attr('class', 'eventNameContainer')
-      .attr('x', (d)-> d.nameContainer().y)
-      .attr('y', (d)-> d.nameContainer().x)
-      .attr('width', (d)-> d.width-10)
-      .attr('height', measures.eventNameHeight)
-        .append('xhtml:div')
-        .attr('class', 'eventName')
-    
-    eventName.append('label').text('Event Name:')
-    eventName.append('input').on('input', (d)-> 
-        d.patternName = @value
-        update()
-      )
-      .attr('class', 'patterNameInput')
-      .attr('value',(d)-> d.patternName)
-
     parameters = innerDiv.append('div').attr('class', 'parameters')
 
     parameterEnter = parameters.selectAll('.parameter').data((d)-> d.parameters ).enter()
@@ -243,30 +148,27 @@ module.exports = (connectionList, eventList, measures, closeIconPoints, removeEv
         exit()
       )
 
-    eventGroupEnter.append('rect')
-      .attr('class', 'leftResizeBar')
-      .attr('x', (d) -> d.x)
-      .attr('y', (d) -> d.y)
-      .attr('width', 3)
-      .attr('height', (d) -> d.height)
-      .call(drag.dragEastWestLeft)
+  update = ->
+    # Update pattern name in event select element
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
+      .data((d)-> eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id))
+      .text((d)-> d.patternName)
 
-    eventGroupEnter.append('rect')
-      .attr('class', 'rightResizeBar')
-      .attr('x', (d) -> d.x+d.width)
-      .attr('y', (d) -> d.y)
-      .attr('width', 3)
-      .attr('height', (d) -> d.height)
-      .call(drag.dragEastWestRight)
+  exit = ->
+    events = d3.selectAll('.event').data(eventList, (d)-> d.id)
+    events.selectAll('.parameter').data((d)-> d.parameters)
+      .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
+      .exit()
+      .remove()
 
-    eventGroupEnter.append('rect')
-      .attr('class', 'bottomResizeBar')
-      .attr('x', (d) -> d.x)
-      .attr('y', (d) -> d.y+d.height)
-      .attr('width', (d)-> d.width)
-      .attr('height', 3)
-      .call(drag.dragNorthSouth)
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
+      .data((d)->
+        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
+      )
+      .exit()
+      .remove()
+    d3.selectAll('.eventPropertySelector').selectAll('.otherEventProperty').data(util.id).exit().remove()
 
-    # d3.selectAll('.eventPropertySelector').selectAll('.otherEventProperty')
-    #   .attr('value', (d)-> d.name)
-    #   .text((d)-> d.displayName)
+  enter: enter
+  update: update
+  exit: exit

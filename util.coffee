@@ -1,4 +1,4 @@
 module.exports =
   id: (it) -> it
-  greenItalic: "color: green; font-style: italic"
+  greenBold: "color: green; font-weight: bold"
   bold: "font-weight: bold"
