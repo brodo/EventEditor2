@@ -13,8 +13,8 @@ module.exports = (refreshMain, d3Functions, measures) ->
     d3Functions.update()
 
   createCombinatorDragStart= (connectionType, nodePostion)-> (d,i)->
-    connection = connectionList.filter((e)-> (e.source == i or e.target == i) and e.type == connectionType)
-    if connection.length == 0
+    connections = connectionList.filter((e)-> e.source == i)
+    if connections.length == 0
       nodes = [1,2,3].map(-> nodePostion(d))
       connection =
         nodes: nodes
@@ -25,10 +25,13 @@ module.exports = (refreshMain, d3Functions, measures) ->
         id: Date.now()
       connectionList.push(connection)
     else
-      connection[0].target = null
-      connection[0].source = i
+      connections[0].target = null
     d3Functions.enter()
     refreshMain()
+
+  isLoop = ->
+    connectionList.length >= eventList.length
+
 
   createCombinatorDragEnd = (connectionType, nodePostion)-> (d,i)->
     connection = connectionList.filter((c)-> c.source == i and c.type == connectionType)[0]
@@ -42,8 +45,10 @@ module.exports = (refreshMain, d3Functions, measures) ->
       index = _.findIndex(connectionList, (c)->
         (c.source == i and c.target == target) or (c.source == target and c.target == i) 
       )
-      if index != -1
+      if index != -1 
         connectionList.splice(index,1)
+      if isLoop()
+        connectionList.pop()
       connection.target = target
       position = nodePostion(eventList[connection.target])
       end.x = position.x
