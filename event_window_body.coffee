@@ -1,6 +1,8 @@
 d3 = require('d3')
 util = require('./util.coffee')
+Links = require('./event_links.coffee')
 module.exports = (refreshMain, d3Functions, measures) ->
+  links = Links()
   enter = (eventGroupEnter) ->
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('overflow', 'auto')
@@ -43,7 +45,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
           index: length
           parentIndex: i
         )
-        enter()
+        d3Functions.enter()
       )
   
     parameterEnter.append('button')
@@ -63,9 +65,9 @@ module.exports = (refreshMain, d3Functions, measures) ->
           isLink: true
           index: length
           parentIndex: i
-          otherEvent: eventList.filter((e)-> e.id != d.parentId)[0].id
+          otherEvent: eventList.filter((e)-> e.id != d.parentId)[0]
         )
-        enter()
+        d3Functions.enter()
       )
     d3.selectAll('.addLinkConditionButton').filter(()-> eventList.length > 1)
       .attr('disabled', null)
@@ -86,40 +88,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
             .attr('value', (d)->d)
             .text((d)->d)
 
-    linkSelectors = conditionsEnter.filter((d)-> d.isLink)
-      .append('span')
-        .attr('class', 'linkSelectors')
-    
-    linkSelectors.append('select')
-      .attr('class', 'eventSelector')
-      .on('change', (d)->
-        update()
-        d.otherEvent = @value
-      )
-      .selectAll('.otherEventNames')
-      .data((d)-> 
-        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
-      ).enter()
-      .append('option')
-        .attr('class', 'otherEventNames')
-        .attr('value', (d)-> d.id)
-        .text((d)-> d.patternName)
 
-
-    eventPropertyStelectors = linkSelectors.append('select')
-      .attr('class', 'eventPropertySelector')
-      .selectAll('.otherEventProperty')
-      .data((d)-> 
-        if d.otherEvent == null then return []
-        otherEvent = eventList.filter((e)-> e.id == d.otherEvent)[0]
-        otherEvent.parameters
-      )
-
-    eventPropertyStelectors.enter()
-      .append('option')
-        .attr('class', 'otherEventProperty')
-        .attr('value', (d)-> d.id)
-        .text((d)-> d.displayName)
 
     conditionsEnter
       .append('select')
@@ -148,6 +117,8 @@ module.exports = (refreshMain, d3Functions, measures) ->
         exit()
       )
 
+    links.enter(conditionsEnter)
+
   update = ->
     # Update pattern name in event select element
     d3.selectAll('.eventSelector').selectAll('.otherEventNames')
@@ -160,6 +131,11 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
       .exit()
       .remove()
+
+    d3.selectAll('.linkSelectors').selectAll('.eventPropertySelector').data((d)-> 
+      if d.otherEvent == null then return []
+      d.otherEvent.parameters
+    ).exit().remove()
 
     d3.selectAll('.eventSelector').selectAll('.otherEventNames')
       .data((d)->
