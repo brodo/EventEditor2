@@ -120,10 +120,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
     links.enter(conditionsEnter)
 
   update = ->
-    # Update pattern name in event select element
-    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
-      .data((d)-> eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id))
-      .text((d)-> d.patternName)
+    links.update()
 
   exit = ->
     events = d3.selectAll('.event').data(eventList, (d)-> d.id)
@@ -131,19 +128,6 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .selectAll('.condition').data(((d)-> d.conditions), ((d)-> d.id))
       .exit()
       .remove()
-
-    d3.selectAll('.linkSelectors').selectAll('.eventPropertySelector').data((d)-> 
-      if d.otherEvent == null then return []
-      d.otherEvent.parameters
-    ).exit().remove()
-
-    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
-      .data((d)->
-        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)
-      )
-      .exit()
-      .remove()
-    d3.selectAll('.eventPropertySelector').selectAll('.otherEventProperty').data(util.id).exit().remove()
 
   enter: enter
   update: update

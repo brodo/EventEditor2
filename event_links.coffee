@@ -12,8 +12,15 @@ module.exports = () ->
       .on('change', (d)->
         id = parseInt(@value,10)
         d.otherEvent = eventList.filter((e)-> e.id == id)[0]
-        enter(conditionsEnter)
-        exit()
+        sel = d3.selectAll('.eventPropertySelector')
+          .selectAll('.otherEventProperty')
+          .data(d.otherEvent.parameters, (d)-> d.name)
+        sel.exit().remove()
+        sel.enter()
+          .append('option')
+          .attr('class', 'otherEventProperty')
+          .attr('value', (p)-> p.id)
+          .text((p)-> p.displayName)
       )
 
     # Option elements for each other event
@@ -36,19 +43,18 @@ module.exports = () ->
     # Option elements for each parameter of the other event
     conditionsEnter
       .selectAll('.eventPropertySelector')
+      .selectAll('.otherEventProperty')
       .data((d)->d.otherEvent.parameters)
+      .enter()
       .append('option')
       .attr('class', 'otherEventProperty')
       .attr('value', (d)-> d.id)
       .text((d)-> d.displayName)
+  update = ->
+    # Update pattern name in event select element
+    d3.selectAll('.eventSelector').selectAll('.otherEventNames')
+      .data((d)-> eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id))
+      .text((d)-> d.patternName)
 
-  exit = ->
-    d3.selectAll('.eventPropertySelector')
-      .selectAll('.otherEventProperty')
-      .data((d)->d.otherEvent.parameters)
-      .exit()
-      .remove()
-   
-
-
-  enter:enter
+  enter: enter
+  update: update
