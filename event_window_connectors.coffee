@@ -1,4 +1,5 @@
 d3 = require('d3')
+util = require('util')
 module.exports = (refreshMain, d3Functions, measures) ->
 
   connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('linear')
@@ -36,6 +37,9 @@ module.exports = (refreshMain, d3Functions, measures) ->
         middleHasBeenDragged: false
         type: connectionType
         id: Date.now()
+        where:
+          visible: false
+
       connectionList.push(connection)
     else
       connections[0].target = null
@@ -83,6 +87,12 @@ module.exports = (refreshMain, d3Functions, measures) ->
     .on("dragend",createCombinatorDragEnd("followedBy", (d)-> d.followedByRectMiddle()))
   
   enter = (eventGroupEnter) ->
+    console.log("%c[EventWindowConnectors] %cEnter", util.greenBold, util.bold)
+    addConnnectionAttribute = (d)->
+      isVisible = d.where.visible
+      d.where.visible = !isVisible
+      enter(eventGroupEnter)
+    
     conn = d3.select('#svgMain').selectAll('.connector').data(connectionList, (d)-> d.id)
       .enter().append('g').attr('class', 'connector')
     
@@ -98,6 +108,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .attr('cx', (d)-> d.nodes[1].x)
       .attr('cy', (d)-> d.nodes[1].y)
       .attr('r', 20)
+      .on('click', addConnnectionAttribute)
       .call(dragConnector)
 
     conn.append('text')
@@ -107,7 +118,20 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .attr('y', (d)-> d.nodes[1].y)
       .attr('width', 15)
       .attr('height', 15)
+      .on('click', addConnnectionAttribute)
       .call(dragConnector)
+
+    visibleConnections = connectionList.filter((c)-> c.where.visible)
+    sel = d3.selectAll('.connector')
+      .selectAll('.whereWindow')
+      .data(visibleConnections, (d)-> d.id)
+      .enter()
+      .append('rect')
+      .attr('class', 'whereWindow')
+      .attr('x', (d)-> d.nodes[1].x - measures.whereWindowWidth/2)
+      .attr('y', (d)-> d.nodes[1].y + measures.whereWindowTopMargin)
+      .attr('height', measures.whereWindowHeight)
+      .attr('width', measures.whereWindowWidth)
 
     eventGroupEnter.append('rect')
       .attr('class', 'andRect')
@@ -182,6 +206,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .attr('x', (d)-> d.nodes[1].x)
       .attr('y', (d)-> d.nodes[1].y)
       .text((d)-> if d.type == "and" then '⋀' else '→')
+
 
 
     d3.selectAll('.andRect')
