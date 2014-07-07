@@ -39,6 +39,8 @@ module.exports = (refreshMain, d3Functions, measures) ->
         id: Date.now()
         where:
           visible: false
+          value: null
+          timeUnit: "seconds"
 
       connectionList.push(connection)
     else
@@ -139,15 +141,29 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .text('within')
     whereHtml
       .append('xhtml:input')
+      .attr('value', (d)-> d.where.value)
+      .on('input', (d)-> d.where.value = @value)
     unitSelect = whereHtml
       .append('xhtml:select')
+      .attr('class', 'timeUnitSelector')
+      .on('change', (d)->
+        console.log("HERE")
+        console.log(d.where.timeUnit)
+        console.log(@value)
+        d.where.timeUnit = @value
+      )
     
     unitSelect.append('xhtml:option')
       .text('seconds')
+      .attr('value','seconds')
     unitSelect.append('xhtml:option')
       .text('minutes')
+      .attr('value','minutes')
     unitSelect.append('xhtml:option')
       .text('hours')
+      .attr('value','hours')
+
+    unitSelect.property('value', (d)-> d.where.timeUnit)
 
 
     eventGroupEnter.append('rect')
