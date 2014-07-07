@@ -14,12 +14,19 @@ secondaryColorDarker = #970026
 html, body
   height:100%
   font-size: 62.5%
+  margin: 0
+  padding: 0
 
-#svgMain
+#right
   height: 100%
   width: 80%
-  position: absolute
-  left: 20%
+  clear: both
+  right: 0
+  position: fixed
+
+#svgMain
+  height: 80%
+  width: 100%
   margin: 0
 
 #sidebar
@@ -27,14 +34,14 @@ html, body
   height: 100%  
   width:20%
   position: absolute
-  padding-right: 1rem
+  margin-right: 0
 
 .eventType 
   border-radius: 15px
   background-color: primaryColorLighter
   color:white;
   font-size: 2rem
-  width: 100%
+  width: 80%
   height: 60px
   margin: 5px
   text-align: center
@@ -124,3 +131,16 @@ html, body
     width:30px
   select
     margin-left: 5px
+
+.footer
+  position: fixed
+  bottom: 0
+  height: 20%
+  width: 100%
+  background-color: lightgray
+  margin: 0
+  border-left: 2px solid black
+
+#eplOutput
+  margin-left: 20px
+
