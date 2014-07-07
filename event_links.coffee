@@ -36,12 +36,13 @@ module.exports = () ->
         .text((d)-> d.patternName)
 
     # Select element for selecting the other events parameter
-    conditionsEnter.selectAll('.linkSelectors')
+    conditionsEnter.filter((c)-> c.isLink).selectAll('.linkSelectors')
       .append('select')
       .attr('class', 'eventPropertySelector')
 
     # Option elements for each parameter of the other event
     conditionsEnter
+      .filter((c)-> c.isLink)
       .selectAll('.eventPropertySelector')
       .selectAll('.otherEventProperty')
       .data((d)->d.otherEvent.parameters)
