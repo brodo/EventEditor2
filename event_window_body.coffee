@@ -3,7 +3,7 @@ util = require('./util.coffee')
 Links = require('./event_links.coffee')
 
 module.exports = (refreshMain, d3Functions, measures) ->
-  links = Links()
+  links = Links(d3Functions)
   enter = (eventGroupEnter) ->
     innerDiv = eventGroupEnter.append('foreignObject')
       .attr('overflow', 'auto')
@@ -55,6 +55,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .text('o')
       .on('click', (d, i)->
         length = d.conditions.length
+        otherEvent = eventList.filter((e)-> e.id != d.parentId)[0]
         d.conditions.push(
           comparators: d.comparators
           type: d.type
@@ -66,7 +67,8 @@ module.exports = (refreshMain, d3Functions, measures) ->
           isLink: true
           index: length
           parentIndex: i
-          otherEvent: eventList.filter((e)-> e.id != d.parentId)[0]
+          otherEvent: otherEvent
+          otherEventProperty: otherEvent.parameters[0].name 
         )
         d3Functions.enter()
       )
@@ -109,7 +111,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
             .attr('value', (d)-> d)
             .text((d) -> d)
 
-    conditionsEnter.append('input')
+    conditionsEnter.filter((d)-> !d.isLink).append('input')
       .attr('type', (d)-> d.type)
       .attr('value', (d)-> d.value)
       .attr('class', 'valueInput')
@@ -119,15 +121,18 @@ module.exports = (refreshMain, d3Functions, measures) ->
         d3Functions.update()
       )
 
+    links.enter(conditionsEnter)
+
     conditionsEnter.append('button')
       .attr('class', 'deleteCondition')
       .text('-')
       .on('click', (d,i) ->
         d3.select(@parentNode.parentNode).datum().conditions.splice(i,1)
+        d3Functions.update()
         exit()
       )
 
-    links.enter(conditionsEnter)
+    
 
   update = ->
     links.update()

@@ -1,4 +1,4 @@
-module.exports = () ->
+module.exports = (d3functions) ->
   enter = (conditionsEnter) ->
 
     conditionsEnter
@@ -39,6 +39,7 @@ module.exports = () ->
     # Select element for selecting the other events parameter
     conditionsEnter.filter((c)-> c.isLink).selectAll('.linkSelectors')
       .append('select')
+      .on('change', (c)-> c.otherEventProperty = @value;  d3functions.update())
       .attr('class', 'eventPropertySelector')
 
     # Option elements for each parameter of the other event
@@ -50,7 +51,7 @@ module.exports = () ->
       .enter()
       .append('option')
       .attr('class', 'otherEventProperty')
-      .attr('value', (d)-> d.id)
+      .property('value', (d)-> d.name)
       .text((d)-> d.displayName)
   update = ->
     # Update pattern name in event select element
