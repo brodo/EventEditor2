@@ -91,6 +91,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
     addConnnectionAttribute = (d)->
       isVisible = d.where.visible
       d.where.visible = !isVisible
+      exit()
       enter(eventGroupEnter)
     
     conn = d3.select('#svgMain').selectAll('.connector').data(connectionList, (d)-> d.id)
@@ -122,16 +123,32 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .call(dragConnector)
 
     visibleConnections = connectionList.filter((c)-> c.where.visible)
-    sel = d3.selectAll('.connector')
+    whereHtml = d3.selectAll('.connector')
       .selectAll('.whereWindow')
       .data(visibleConnections, (d)-> d.id)
       .enter()
-      .append('rect')
+      .append('foreignObject')
       .attr('class', 'whereWindow')
       .attr('x', (d)-> d.nodes[1].x - measures.whereWindowWidth/2)
       .attr('y', (d)-> d.nodes[1].y + measures.whereWindowTopMargin)
       .attr('height', measures.whereWindowHeight)
       .attr('width', measures.whereWindowWidth)
+
+    whereHtml
+      .append('xhtml:span')
+      .text('within')
+    whereHtml
+      .append('xhtml:input')
+    unitSelect = whereHtml
+      .append('xhtml:select')
+    
+    unitSelect.append('xhtml:option')
+      .text('seconds')
+    unitSelect.append('xhtml:option')
+      .text('minutes')
+    unitSelect.append('xhtml:option')
+      .text('hours')
+
 
     eventGroupEnter.append('rect')
       .attr('class', 'andRect')
@@ -207,6 +224,9 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .attr('y', (d)-> d.nodes[1].y)
       .text((d)-> if d.type == "and" then '⋀' else '→')
 
+    d3.selectAll('.whereWindow')
+      .attr('x', (d)-> d.nodes[1].x - measures.whereWindowWidth/2)
+      .attr('y', (d)-> d.nodes[1].y + measures.whereWindowTopMargin)
 
 
     d3.selectAll('.andRect')
@@ -224,6 +244,15 @@ module.exports = (refreshMain, d3Functions, measures) ->
     d3.selectAll('.followedByLabel')
       .attr('y', (d)-> d.followedByRectMiddle().y )
       .attr('x', (d) -> d.followedByRectMiddle().x )
+  
+  exit = ->
+    visibleConnections = connectionList.filter((c)-> c.where.visible)
+    sel = d3.selectAll('.connector')
+      .selectAll('.whereWindow')
+      .data(visibleConnections, (d)-> d.id)
+      .exit()
+      .remove()
 
   enter: enter
   update: update
+  exit: exit

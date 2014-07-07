@@ -16,8 +16,8 @@ measures =
   followedByCombinatorButtonWidth: 70
   followedByCombinatorButtonHeight: 20
   eventTitleHeight: 30
-  whereWindowHeight: 50
-  whereWindowWidth: 150
+  whereWindowHeight: 40
+  whereWindowWidth: 180
   whereWindowTopMargin: 20
 
 module.exports = (eventList, connectionList, refreshMain) ->  
