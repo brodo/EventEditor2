@@ -84,9 +84,9 @@ module.exports = (refreshMain, d3Functions, measures) ->
     .on("dragend",createCombinatorDragEnd("and", (d)-> d.andRectMiddle()))
   
   dragFollowedByRect = d3.behavior.drag()
-    .on("dragstart", createCombinatorDragStart("followedBy", (d)-> d.followedByRectMiddle()))
-    .on("drag", combinatorDrag("followedBy"))
-    .on("dragend",createCombinatorDragEnd("followedBy", (d)-> d.followedByRectMiddle()))
+    .on("dragstart", createCombinatorDragStart("->", (d)-> d.followedByRectMiddle()))
+    .on("drag", combinatorDrag("->"))
+    .on("dragend",createCombinatorDragEnd("->", (d)-> d.followedByRectMiddle()))
   
   enter = (eventGroupEnter) ->
     util.debug and console.log("%c[EventWindowConnectors] %cEnter", util.greenBold, util.bold)
