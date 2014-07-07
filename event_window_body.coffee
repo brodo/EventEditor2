@@ -1,6 +1,7 @@
 d3 = require('d3')
 util = require('./util.coffee')
 Links = require('./event_links.coffee')
+
 module.exports = (refreshMain, d3Functions, measures) ->
   links = Links()
   enter = (eventGroupEnter) ->
@@ -79,7 +80,10 @@ module.exports = (refreshMain, d3Functions, measures) ->
     conditionsEnter.filter((d)-> d.combinator != null)
       .append('select')
         .attr('class',  'combinator')
-        .on('change', (d) -> d.combinator = @value)
+        .on('change', (d) ->
+          d.combinator = @value
+          d3Functions.update()
+        )
         .selectAll('.combinatorOption')
           .data((d)-> ['And', 'Or'])
           .enter()
@@ -93,7 +97,10 @@ module.exports = (refreshMain, d3Functions, measures) ->
     conditionsEnter
       .append('select')
         .attr('class', 'comparatorSelect')
-        .on('change', (d) -> d.comparator = @value)
+        .on('change', (d) -> 
+          d.comparator = @value
+          d3Functions.update()
+        )
         .selectAll('.comparatorOption')
           .data((d)-> d.comparators)
           .enter()
@@ -107,7 +114,10 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .attr('value', (d)-> d.value)
       .attr('class', 'valueInput')
       .style('width', (d) -> "#{d.width}px")
-      .on('input', (d)-> d.value = @value)
+      .on('input', (d)-> 
+        d.value = @value
+        d3Functions.update()
+      )
 
     conditionsEnter.append('button')
       .attr('class', 'deleteCondition')

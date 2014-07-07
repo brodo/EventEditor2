@@ -2,6 +2,7 @@ module.exports = () ->
   enter = (conditionsEnter) ->
 
     conditionsEnter
+      .filter((c)-> c.isLink)
       .append('span')
         .attr('class', 'linkSelectors')
     

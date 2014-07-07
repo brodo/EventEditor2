@@ -1,11 +1,13 @@
 d3 = require('d3')
 createSidebar = require('./sidebar.coffee')
 _ = require('lodash')
+eplGenerator = require('./eplGenerator.coffee')
 window.eventList = []
 window.connectionList = []
 window.d3 = d3
 window._ = _
 eventCount = 0
+
 
 eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
   enter()
@@ -14,13 +16,16 @@ eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
 )
 
 update = ->
+  document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
   eventWindow.update(eventList)
 
 
 enter = ->
+  document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
   eventWindow.enter()
 
 exit = ->
+  document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
   eventWindow.exit(eventList)
   d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
@@ -32,7 +37,7 @@ addEvent = (d,x,y)->
   data.y  = Math.max(0,y-getMainRect().top-125)
   data.width = eventWindow.measures.eventWidth
   data.height = eventWindow.measures.eventWidth 
-  data.patternName = "#{data.displayName}##{eventCount}"
+  data.patternName = "#{data.displayName}#{eventCount}"
   data.andRect = -> 
     x: @x + 5
     y: @y + @height - eventWindow.measures.eventTitleHeight + 5

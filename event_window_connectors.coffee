@@ -89,7 +89,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
     .on("dragend",createCombinatorDragEnd("followedBy", (d)-> d.followedByRectMiddle()))
   
   enter = (eventGroupEnter) ->
-    console.log("%c[EventWindowConnectors] %cEnter", util.greenBold, util.bold)
+    util.debug and console.log("%c[EventWindowConnectors] %cEnter", util.greenBold, util.bold)
     addConnnectionAttribute = (d)->
       isVisible = d.where.visible
       d.where.visible = !isVisible

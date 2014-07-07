@@ -1,6 +1,7 @@
 d3 = require('d3')
 _ = require('lodash')
 util = require('./util.coffee')
+eplGenerator = require('./eplGenerator.coffee')
 Title = require('./event_window_title.coffee')
 Body = require('./event_window_body.coffee')
 Connectors = require('./event_window_connectors.coffee')
@@ -61,7 +62,8 @@ module.exports = (eventList, connectionList, refreshMain) ->
   connectors = Connectors(refreshMain, d3Functions, measures)
 
   enter = ->
-    console.log("%c[EventWindow] %cEnter", util.greenBold, util.bold)
+    document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
+    util.debug and console.log("%c[EventWindow] %cEnter", util.greenBold, util.bold)
 
     events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     eventGroupEnter = events.enter().append('g')
@@ -128,7 +130,8 @@ module.exports = (eventList, connectionList, refreshMain) ->
     #   .text((d)-> d.displayName)
 
   update = ->
-    console.log("%c[EventWindow] %cUpdate", util.greenBold, util.bold)
+    document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
+    util.debug and console.log("%c[EventWindow] %cUpdate", util.greenBold, util.bold)
     events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     events
       .attr('x', (d) -> d.x)
@@ -179,7 +182,8 @@ module.exports = (eventList, connectionList, refreshMain) ->
     body.update()
   
   exit = ->
-    console.log("%c[EventWindow] %cExit", util.greenBold, util.bold)
+    document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
+    util.debug and console.log("%c[EventWindow] %cExit", util.greenBold, util.bold)
     d3.selectAll('.event').data(eventList, (d)-> d.id).exit().remove()
     body.exit()
     

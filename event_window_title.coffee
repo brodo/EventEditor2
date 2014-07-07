@@ -17,7 +17,7 @@ module.exports = (refreshMain, d3Functions, removeEvent, eventTitleHeight) ->
     .on("drag", dragmove)
 
   enter = (eventGroupEnter)->
-    console.log("%c[EventWindowTitle] %cEnter", util.greenBold, util.bold)
+    util.debug and console.log("%c[EventWindowTitle] %cEnter", util.greenBold, util.bold)
     
     eventGroupEnter.append('rect')
       .attr('class', 'eventTitleRect')
