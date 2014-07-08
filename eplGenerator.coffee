@@ -1,10 +1,13 @@
 _ = require('lodash')
 
 calculateWeight = (eventList, connectionList, event, weight) ->
-  connection = _.find(connectionList, source: eventList.indexOf(event))
-  if connection
-    nextNode = eventList[connection.target]
+  sourceConnection = _.find(connectionList, source: eventList.indexOf(event))
+  if sourceConnection
+    nextNode = eventList[sourceConnection.target]
     return calculateWeight(eventList, connectionList, nextNode, weight+1)
+  targetConnection = _.find(connectionList, target: eventList.indexOf(event))
+  if targetConnection # node is target, but no source. So it must be the last node
+    weight = 0.5
   weight
 
 
