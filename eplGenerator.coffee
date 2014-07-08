@@ -10,7 +10,7 @@ calculateWeight = (eventList, connectionList, event, weight) ->
 
 conditionToEpl = (condition, parameter) ->
   if condition.isLink
-    "#{condition.combinator or ''} #{parameter.name} #{condition.comparator} #{condition.otherEvent.patternName}.#{condition.otherEventProperty} "  
+    "#{condition.combinator or ''} #{parameter.name} #{condition.comparator} #{condition.otherEvent.patternName}.#{condition.otherEventProperty}"  
   else
     "#{condition.combinator or ''} #{parameter.name} #{condition.comparator} #{condition.value or ''} "
 parameterToEpl = (parameter) ->
@@ -21,15 +21,20 @@ eventToEpl = (event, index) ->
   attributesList = (parameterToEpl(parameter) for parameter in event.parameters)
   attributes = "(#{attributesList.join(' ')}) "
   index = eventList.indexOf(event)
-  connection = _.find(connectionList, source: index)
-
-  "#{event.patternName}=#{event.name}#{attributes} #{connection?.type or 'or'} "
-
+  connectionSource = _.find(connectionList, source: index)
+  connectionTarget = _.find(connectionList, target: index)
+  isSourceOfWhereConnection = connectionSource and connectionSource.where.value
+  isTargetOfWhereConnection = connectionTarget and connectionTarget.where.value
+  openBracket = if isSourceOfWhereConnection then '(' else ''
+  closedBracket = if isTargetOfWhereConnection then ')' else ''
+  whereClause = if isTargetOfWhereConnection
+    " where timer:within(#{connectionTarget.where.value} #{connectionTarget.where.timeUnit}) " 
+  else 
+    ''
+  "#{openBracket}#{event.patternName}=#{event.name}#{attributes}#{whereClause}#{closedBracket} #{connectionSource?.type or 'or'} "
 
 module.exports = (eventList, connectionList)->
   sortedEventList = _.sortBy(eventList, (e) -> calculateWeight(eventList, connectionList, e, 0) * -1)
   eventEplList = (eventToEpl(event) for event, index in sortedEventList)
-
   pattern = eventEplList.join('')
-
   "select * from pattern [#{pattern[0..-5]}]"

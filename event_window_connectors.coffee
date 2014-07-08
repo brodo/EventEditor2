@@ -142,15 +142,18 @@ module.exports = (refreshMain, d3Functions, measures) ->
     whereHtml
       .append('xhtml:input')
       .attr('value', (d)-> d.where.value)
-      .on('input', (d)-> d.where.value = @value)
+      .attr('class', 'timeValue')
+      .attr('type', 'number')
+      .on('input', (d)-> 
+        d.where.value = @value
+        d3Functions.update()
+      )
     unitSelect = whereHtml
       .append('xhtml:select')
       .attr('class', 'timeUnitSelector')
       .on('change', (d)->
-        console.log("HERE")
-        console.log(d.where.timeUnit)
-        console.log(@value)
         d.where.timeUnit = @value
+        d3Functions.update()
       )
     
     unitSelect.append('xhtml:option')
