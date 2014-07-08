@@ -1,0 +1,3 @@
+[submodule "JSEPLParser"]
+	path = JSEPLParser
+	url = git@github.com:brodo/JSEPLParser.git
