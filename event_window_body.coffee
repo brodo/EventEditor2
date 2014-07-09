@@ -91,6 +91,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
     conditionsEnter
       .append('select')
         .attr('class', 'comparatorSelect')
+        .property('value', (d)-> d.comparator)
         .on('change', (d) -> 
           d.comparator = @value
           d3Functions.update()
@@ -105,7 +106,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
 
     conditionsEnter.filter((d)-> !d.isLink).append('input')
       .attr('type', (d)-> d.type)
-      .attr('value', (d)-> d.value)
+      .property('value', (d)-> d.value)
       .attr('class', 'valueInput')
       .style('width', (d) -> "#{d.width}px")
       .on('input', (d)-> 
@@ -128,6 +129,11 @@ module.exports = (refreshMain, d3Functions, measures) ->
 
   update = ->
     links.update()
+    d3.selectAll('.comparatorSelect')
+      .property('value', (d)-> 
+        console.log(d.comparator)
+        d.comparator
+      )
 
   exit = ->
     events = d3.selectAll('.event').data(eventList, (d)-> d.id)
