@@ -5,6 +5,7 @@ eplGenerator = require('./eplGenerator.coffee')
 Title = require('./event_window_title.coffee')
 Body = require('./event_window_body.coffee')
 Connectors = require('./event_window_connectors.coffee')
+eplElement = document.querySelector('#eplOutput')
 
 d3.selection.prototype.moveToFront = -> @each(-> @parentNode.appendChild(@))
 measures =
@@ -62,7 +63,7 @@ module.exports = (eventList, connectionList, refreshMain) ->
   connectors = Connectors(refreshMain, d3Functions, measures)
 
   enter = ->
-    document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
+    if not (eplElement == document.activeElement) then eplElement.value = eplGenerator(eventList, connectionList)
     util.debug and console.log("%c[EventWindow] %cEnter", util.greenBold, util.bold)
 
     events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
@@ -130,7 +131,7 @@ module.exports = (eventList, connectionList, refreshMain) ->
     #   .text((d)-> d.displayName)
 
   update = ->
-    document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
+    if not (eplElement == document.activeElement) then eplElement.value = eplGenerator(eventList, connectionList)
     util.debug and console.log("%c[EventWindow] %cUpdate", util.greenBold, util.bold)
     events = d3.select('.events').selectAll('.event').data(eventList, (d)-> d.id)
     events
@@ -142,6 +143,7 @@ module.exports = (eventList, connectionList, refreshMain) ->
     d3.selectAll('.eventNameContainer')
       .attr('x', (d) -> d.nameContainer().x)
       .attr('y', (d) -> d.nameContainer().y)
+      .attr('width', (d)-> d.width - 25)
 
     d3.selectAll('.eventRect')
       .attr('width', (d)-> d.width)
@@ -182,7 +184,7 @@ module.exports = (eventList, connectionList, refreshMain) ->
     body.update()
   
   exit = ->
-    document.querySelector('#eplOutput').value = eplGenerator(eventList, connectionList)
+    if not (eplElement == document.activeElement) then eplElement.value = eplGenerator(eventList, connectionList)
     util.debug and console.log("%c[EventWindow] %cExit", util.greenBold, util.bold)
     d3.selectAll('.event').data(eventList, (d)-> d.id).exit().remove()
     body.exit()

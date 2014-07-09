@@ -21,16 +21,16 @@ eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
 )
 
 update = ->
-  eplField.value = eplGenerator(eventList, connectionList)
+  if not (eplField == document.activeElement) then eplField.value = eplGenerator(eventList, connectionList)
   eventWindow.update(eventList)
 
 
 enter = ->
-  eplField.value = eplGenerator(eventList, connectionList)
+  if not (eplField == document.activeElement) then eplField.value = eplGenerator(eventList, connectionList)
   eventWindow.enter()
 
 exit = ->
-  eplField.value = eplGenerator(eventList, connectionList)
+  if not (eplField == document.activeElement) then eplField.value = eplGenerator(eventList, connectionList)
   eventWindow.exit(eventList)
   d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
@@ -51,4 +51,7 @@ d3.json("data/sensors.json", (err, sensors)->
   read = eplReader(createEvent, eventList, connectionList)
   eplField.oninput = ->
     read(eplField.value)
+    exit()
+    enter()
+    update()
 )

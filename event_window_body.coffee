@@ -1,6 +1,7 @@
 d3 = require('d3')
 util = require('./util.coffee')
 Links = require('./event_links.coffee')
+createCondition = require('./condition.coffee')
 
 module.exports = (refreshMain, d3Functions, measures) ->
   links = Links(d3Functions)
@@ -35,16 +36,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .on('click', (d,i)->
         length = d.conditions.length 
         d.conditions.push(
-          comparators: d.comparators
-          type: d.type
-          value: null
-          combinator: (if length == 0 then null else 'and')
-          width: d.width
-          comparator: d.comparators[0]
-          id: Date.now()
-          isLink: false
-          index: length
-          parentIndex: i
+          createCondition(d,i)
         )
         d3Functions.enter()
       )
