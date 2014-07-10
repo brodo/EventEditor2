@@ -4,7 +4,7 @@ module.exports = (sensors, measures, getMainRect) -> (sensorName, x,y) ->
   eventCount++
   d = _.find(sensors, name: sensorName)
   data = _.cloneDeep(d)
-  data.id = Date.now()
+  data.id = Math.floor(Math.random()*1e15)
   data.x = Math.max(0,x-getMainRect().left-125)
   data.y  = Math.max(0,y-getMainRect().top-125)
   data.width = measures.eventWidth

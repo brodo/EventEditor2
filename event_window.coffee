@@ -98,7 +98,7 @@ module.exports = (eventList, connectionList, refreshMain) ->
         d.patternName = @value
         update()
       )
-      .attr('class', 'patterNameInput')
+      .attr('class', 'patternNameInput')
       .attr('value',(d)-> d.patternName)
 
    
