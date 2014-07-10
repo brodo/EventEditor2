@@ -1,5 +1,6 @@
 d3 = require('d3')
 util = require('util')
+connection = require('./connection.coffee')
 module.exports = (refreshMain, d3Functions, measures) ->
 
   connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('linear')
@@ -30,17 +31,7 @@ module.exports = (refreshMain, d3Functions, measures) ->
     connections = connectionList.filter((e)-> e.source == i)
     if connections.length == 0
       nodes = [1,2,3].map(-> nodePostion(d))
-      connection =
-        nodes: nodes
-        target: null
-        source: i
-        middleHasBeenDragged: false
-        type: connectionType
-        id: Date.now()
-        where:
-          visible: false
-          value: null
-          timeUnit: "seconds"
+      connection = connection.create(nodes, connectionType, i, null)
 
       connectionList.push(connection)
     else
