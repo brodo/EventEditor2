@@ -54,10 +54,12 @@ module.exports = (d3functions) ->
       .property('value', (d)-> d.name)
       .text((d)-> d.displayName)
   update = ->
+    console.log("update!!")
     # Update pattern name in event select element
     d3.selectAll('.eventSelector').selectAll('.otherEventNames')
       .data((d)-> eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id))
       .text((d)-> d.patternName)
+    d3.selectAll('.eventPropertySelector').text((d)-> d.patternName)
 
   enter: enter
   update: update

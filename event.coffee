@@ -1,12 +1,16 @@
 _ = require('lodash')
 eventCount = 0 
-module.exports = (sensors, measures, getMainRect) -> (sensorName, x,y) ->
+module.exports = (sensors, measures, getMainRect) -> (sensorName, x,y, relative) ->
+  console.log("x:#{x}, y:#{y}")
+  console.log("mainRect:",getMainRect())
   eventCount++
   d = _.find(sensors, name: sensorName)
   data = _.cloneDeep(d)
   data.id = Math.floor(Math.random()*1e15)
-  data.x = Math.max(0,x-getMainRect().left-125)
-  data.y  = Math.max(0,y-getMainRect().top-125)
+  left = if relative then 0 else getMainRect().left
+  data.x = Math.max(0,x-left-125)
+  top = if relative then 0 else getMainRect().left
+  data.y  = Math.max(0,y-top-125)
   data.width = measures.eventWidth
   data.height = measures.eventHeight
   data.patternName = "#{data.displayName}#{eventCount}"

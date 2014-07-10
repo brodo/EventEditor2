@@ -4,10 +4,15 @@ Connection = require('./connection.coffee')
 _ = require('lodash')
 d3 = require('d3')
 module.exports = (createEvent, events, connections) -> (epl) ->
+
+  newEventCoordinates = ->
+    x: (events.length * 260) + 135
+    y: 130
   newEvent = (patternFilter) ->
     patternName = patternFilter.name or ''
     name = patternFilter.stream.name
-    e = createEvent(name, 10,10)
+    coord = newEventCoordinates()
+    e = createEvent(name, coord.x, coord.y, true)
     conditions = patternFilter.condition
     for parameter in e.parameters
       conditionsOfParameter = _.filter(conditions, (c)-> c[0].eventProperty == parameter.name)
