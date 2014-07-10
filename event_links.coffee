@@ -47,7 +47,7 @@ module.exports = (d3functions) ->
       .filter((c)-> c.isLink)
       .selectAll('.eventPropertySelector')
       .selectAll('.otherEventProperty')
-      .data((d)->d.otherEvent.parameters)
+      .data((d)->d.otherEvent?.parameters or [])
       .enter()
       .append('option')
       .attr('class', 'otherEventProperty')

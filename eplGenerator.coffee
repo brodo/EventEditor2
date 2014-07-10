@@ -34,7 +34,8 @@ eventToEpl = (event, index) ->
     " where timer:within(#{connectionTarget.where.value} #{connectionTarget.where.timeUnit}) " 
   else 
     ''
-  "#{openBracket}#{event.patternName}=#{event.name}#{attributes}#{whereClause}#{closedBracket} #{connectionSource?.type or 'or'} "
+  equals = if event.patternName == '' then '' else '='
+  """#{openBracket}#{event.patternName}#{equals}#{event.name}#{attributes}#{whereClause}#{closedBracket} #{connectionSource?.type or 'or'} """
 
 module.exports = (eventList, connectionList)->
   sortedEventList = _.sortBy(eventList, (e) -> calculateWeight(eventList, connectionList, e, 0) * -1)

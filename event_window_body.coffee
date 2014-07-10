@@ -131,7 +131,6 @@ module.exports = (refreshMain, d3Functions, measures) ->
     links.update()
     d3.selectAll('.comparatorSelect')
       .property('value', (d)-> 
-        console.log(d.comparator)
         d.comparator
       )
 

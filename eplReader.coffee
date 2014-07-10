@@ -10,11 +10,21 @@ module.exports = (createEvent, events, connections) -> (epl) ->
     e = createEvent(name, 10,10)
     conditions = patternFilter.condition
     for parameter in e.parameters
-      conditionsOfParameter = _.filter(conditions, (c)-> c[0] == parameter.name)
+      conditionsOfParameter = _.filter(conditions, (c)-> c[0].eventProperty == parameter.name)
       for eplCondition in conditionsOfParameter
         condition = createCondition(parameter, 0)
-        condition.comparator = eplCondition[1]
-        condition.value = eplCondition[2]
+        condition.comparator = eplCondition[1][0]
+        value = eplCondition[1][1]
+        if value.eventProperty #it's a link!
+          condition.isLink = true
+          propertyArray = value.eventProperty.split('.')
+          condition.otherEventProperty = propertyArray[propertyArray.length-1]
+          otherEventName = propertyArray[0..-2].join('.')
+          console.log("otherName: #{otherEventName}")
+          condition.otherEvent = _.find(events, patternName: otherEventName)
+
+        else
+          condition.value = value
         console.log("eplCondition: ", eplCondition)
         console.log("condition: ", condition)
         parameter.conditions.push(condition)
