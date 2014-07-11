@@ -1,8 +1,6 @@
 _ = require('lodash')
 eventCount = 0 
 module.exports = (sensors, measures, getMainRect) -> (sensorName, x,y, relative) ->
-  console.log("x:#{x}, y:#{y}")
-  console.log("mainRect:",getMainRect())
   eventCount++
   d = _.find(sensors, name: sensorName)
   data = _.cloneDeep(d)

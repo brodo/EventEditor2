@@ -43,23 +43,38 @@ module.exports = (d3functions) ->
       .attr('class', 'eventPropertySelector')
 
     # Option elements for each parameter of the other event
-    conditionsEnter
+    
+    d3.selectAll('.event')
+      .data(eventList)
+      .selectAll('.parameter')
+      .data((d)-> d.parameters)
+      .selectAll('.condition')
       .filter((c)-> c.isLink)
       .selectAll('.eventPropertySelector')
       .selectAll('.otherEventProperty')
-      .data((d)->d.otherEvent?.parameters or [])
+      .data((d)->d.otherEvent.parameters)
       .enter()
       .append('option')
       .attr('class', 'otherEventProperty')
       .property('value', (d)-> d.name)
       .text((d)-> d.displayName)
+
+    # conditionsEnter
+    #   .filter((c)-> c.isLink)
+    #   .selectAll('.eventPropertySelector')
+    #   .selectAll('.otherEventProperty')
+    #   .data((d)->d.otherEvent.parameters)
+    #   .enter()
+    #   .append('option')
+    #   .attr('class', 'otherEventProperty')
+    #   .property('value', (d)-> d.name)
+    #   .text((d)-> d.displayName)
   update = ->
-    console.log("update!!")
     # Update pattern name in event select element
     d3.selectAll('.eventSelector').selectAll('.otherEventNames')
       .data((d)-> eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id))
       .text((d)-> d.patternName)
-    d3.selectAll('.eventPropertySelector').text((d)-> d.patternName)
+    
 
   enter: enter
   update: update
