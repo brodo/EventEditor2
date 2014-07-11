@@ -28,7 +28,9 @@ module.exports = (d3functions) ->
     d3.selectAll('.eventSelector')
       .selectAll('.otherEventNames')
       .data(((d)-> 
-        eventList.filter((e)-> e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id)),
+        eventList.filter((e)-> 
+          (e.parameters[d.parentIndex]?.conditions[d.index]?.id != d.id) and
+          (e.patternName != '') and (e.patternName != false))),
         (d) -> d.id
       ).enter()
       .append('option')
@@ -59,16 +61,7 @@ module.exports = (d3functions) ->
       .property('value', (d)-> d.name)
       .text((d)-> d.displayName)
 
-    # conditionsEnter
-    #   .filter((c)-> c.isLink)
-    #   .selectAll('.eventPropertySelector')
-    #   .selectAll('.otherEventProperty')
-    #   .data((d)->d.otherEvent.parameters)
-    #   .enter()
-    #   .append('option')
-    #   .attr('class', 'otherEventProperty')
-    #   .property('value', (d)-> d.name)
-    #   .text((d)-> d.displayName)
+   
   update = ->
     # Update pattern name in event select element
     d3.selectAll('.eventSelector').selectAll('.otherEventNames')

@@ -18,7 +18,7 @@ sidebar = (addEvent, sensors) ->
     d3.select('.dragging').remove()
     source = d3.event.sourceEvent
     element = document.elementFromPoint(source.clientX, source.clientY)
-    if element != null and element.id == "svgMain" then addEvent(d, source.clientX,source.clientY)
+    if element != null and element.id == "svgMain" then addEvent(d, source.clientX,source.clientY,false)
   
   drag = d3.behavior.drag()
     .origin(id)

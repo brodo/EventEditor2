@@ -34,8 +34,8 @@ exit = ->
   eventWindow.exit(eventList)
   d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
-addEvent = (d,x,y)->
-  event = createEvent(d.name, x, y)
+addEvent = (d,x,y, relative)->
+  event = createEvent(d.name, x, y, false)
   eventList.push(event) 
   enter()
   update()
