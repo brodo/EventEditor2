@@ -1,0 +1,40 @@
+{
+  "name": "eventEditor2",
+  "version": "0.0.0",
+  "description": "",
+  "main": "bundle.js",
+  "dependencies": {
+    "coffeeify": "~0.6.0",
+    "gulp": "~3.8.6",
+    "d3": "~3.4.10",
+    "handlebars": "~2.0.0-alpha.4",
+    "handlebars-runtime": "~1.0.12",
+    "lodash": "~2.4.1",
+    "watchify": "~0.10.2"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.6",
+    "handlebars-runtime": "^1.0.12",
+    "d3": "^3.4.10",
+    "lodash": "^2.4.1",
+    "gulp-stylus": "^1.0.5",
+    "gulp-autoprefixer": "0.0.8",
+    "gulp-minify-css": "^0.3.6",
+    "coffeeify": "^0.6.0",
+    "gulp-browserify": "^0.5.0",
+    "gulp-rename": "^1.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/brodo/EventEditor2.git"
+  },
+  "author": "Julian Dax",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brodo/EventEditor2/issues"
+  },
+  "homepage": "https://github.com/brodo/EventEditor2"
+}
