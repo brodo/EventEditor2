@@ -1,18 +1,16 @@
 d3 = require('d3')
-createSidebar = require('./sidebar.coffee')
 _ = require('lodash')
-eplGenerator = require('./eplGenerator.coffee')
-eplReader = require('./eplReader.coffee')
-event = require('./event.coffee')
-createEvent = null
 window.eventList = []
 window.connectionList = []
 window.d3 = d3
 window._ = _
+
+createSidebar = require('./sidebar.coffee')
+eplGenerator = require('./eplGenerator.coffee')
+eplReader = require('./eplReader.coffee')
+event = require('./event.coffee')
+createEvent = null
 eplField = document.querySelector('#eplOutput')
-
-
-
 
 eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
   enter()

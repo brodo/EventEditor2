@@ -1,4 +1,4 @@
-parser = require('./JSEPLParser/epl2.js')
+parser = require('../../JSEPLParser/epl2.js')
 createCondition = require('./condition.coffee')
 Connection = require('./connection.coffee')
 _ = require('lodash')
