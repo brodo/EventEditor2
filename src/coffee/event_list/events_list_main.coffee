@@ -1,20 +1,20 @@
 config = require('../../data/test_config.json')
-RestClient = require('./rest_client')
-template = require('../../templates/events')
+RestClient = require('../rest_client')
+template = require('../../templates/event_list')
 mainDiv = document.querySelector('#main')
 
 csrfToken = 't1jpiODT3yO/Gatbgu+tKj1HiYMn02b+lejnbFlmc5c='
-console.clear()
 
 eventsRestClient = new RestClient(config.eventsBaseUrl,
   config.eventsCollectionUrl, 
   config.eventsItemUrl,
   csrfToken)
 
-eventsRestClient.getCollection((events)->
-  events = JSON.parse(events)
-  mainDiv.innerHTML = template(events: events)
-)
+module.exports = ->
+  eventsRestClient.getCollection((events)->
+    events = JSON.parse(events)
+    mainDiv.innerHTML = template(events: events)
+  )
 
 # event = 
 #   name: "test event 3"

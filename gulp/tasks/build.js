@@ -1,7 +1,6 @@
 var gulp = require('gulp');
 
-gulp.task('build', ['browserifySingleEvent',
-  'browserifyEventList',
+gulp.task('build', ['browserifyMain',
   'copyHtml',
   'copyData',
   'stylus']);
