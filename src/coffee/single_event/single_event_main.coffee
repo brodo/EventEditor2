@@ -14,6 +14,7 @@ eventsRestClient = new RestClient(config.eventsBaseUrl,
 createEvent = null
 getEplField = -> document.querySelector('#eplOutput')
 module.exports = (id)->
+
   window.eventList = []
   window.connectionList = []
   mainDiv.innerHTML = template()
@@ -24,16 +25,19 @@ module.exports = (id)->
   )
 
   update = ->
-    if not (getEplField() == document.activeElement) then getEplField().value = eplGenerator(eventList, connectionList)
+    eplStr = eplGenerator(eventList, connectionList)
+    if not (getEplField() == document.activeElement) then getEplField().value = eplStr
     eventWindow.update(eventList)
 
 
   enter = ->
-    if not (getEplField() == document.activeElement) then getEplField().value = eplGenerator(eventList, connectionList)
+    eplStr = eplGenerator(eventList, connectionList)
+    if not (getEplField() == document.activeElement) then getEplField().value = eplStr
     eventWindow.enter()
 
   exit = ->
-    if not (getEplField() == document.activeElement) then getEplField().value = eplGenerator(eventList, connectionList)
+    eplStr = eplGenerator(eventList, connectionList)
+    if not (getEplField() == document.activeElement) then getEplField().value = eplStr
     eventWindow.exit(eventList)
     d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
@@ -43,12 +47,19 @@ module.exports = (id)->
     enter()
     update()
 
+  addSaveButtonListener = ->
+    button = document.querySelector('.saveButton')
+    button.onclick = -> 
+      eplStr = eplGenerator(eventList, connectionList)
+      eventsRestClient.updateItem(id, definition: eplStr)
+
   getMainRect = ->
     d3.select('#svgMain').node().getBoundingClientRect()
 
   d3.json("data/sensors.json", (err, sensors)->
+    addSaveButtonListener()
     eventsRestClient.getItem(id, (result)->
-      epl = JSON.parse(result).definition
+      epl = result.definition
       enter()
       createSidebar(addEvent, sensors)
       createEvent = event(sensors, eventWindow.measures, getMainRect)

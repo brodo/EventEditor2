@@ -69,7 +69,6 @@ module.exports = (createEvent, events, connections) -> (epl) ->
     parsingResult = parser.parse(epl)
     events.splice(0)
     connections.splice(0)
-    console.log(parsingResult)
     pattern = parsingResult.body.expression.from.stream.pattern
     createEventsAndConnections(pattern)
   catch error
