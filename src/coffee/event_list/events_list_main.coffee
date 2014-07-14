@@ -7,12 +7,18 @@ eventsRestClient = new RestClient(config.eventsBaseUrl,
   config.eventsItemUrl,
   csrfToken)
 
+surveysRestClient = new RestClient(config.surveysBaseUrl,
+  config.surveysCollectionUrl, 
+  config.surveysItemUrl,
+  csrfToken)
+
 module.exports = ->
   eventsRestClient.getCollection((events)->
     events = events
     mainDiv.innerHTML = template(events: events)
     addDeleteButtonListeners()
     addNameInputListeners()
+    addSurveyIdInputListeners()
     addCreateNewEventButtonListener()
   )
 
@@ -27,6 +33,9 @@ nameInputChanged = (event) ->
   id = event.target.dataset.eventid
   eventsRestClient.updateItem(id, name: event.target.value)
 
+surveyInputChanged = (event) ->
+  id = event.target.dataset.eventid
+  eventsRestClient.updateItem(id, survey_id: event.target.value)
 
 addDeleteButtonListeners = -> 
   buttons = _.toArray(mainDiv.querySelectorAll('.deleteButton'))
@@ -35,6 +44,10 @@ addDeleteButtonListeners = ->
 addNameInputListeners = ->
   inputs = _.toArray(mainDiv.querySelectorAll('.eventNameInput'))
   inputs.map((i)-> i.oninput = nameInputChanged)
+
+addSurveyIdInputListeners = ->
+  inputs = _.toArray(mainDiv.querySelectorAll('.surveyIdInput'))
+  inputs.map((i)-> i.oninput = surveyInputChanged)
 
 addCreateNewEventButtonListener = ->
   button = document.querySelector('#newEventButton')

@@ -1,5 +1,8 @@
 {
   "eventsBaseUrl": "http://localhost:3000/backend",
   "eventsCollectionUrl": "events",
-  "eventsItemUrl": "events/:id"
+  "eventsItemUrl": "events/:id",
+  "surveysBaseUrl": "http://localhost:3000/backend",
+  "surveysCollectionUrl": "surveys",
+  "surveysItemUrl": "surveys/:id"
 }

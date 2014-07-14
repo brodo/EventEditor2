@@ -2,7 +2,7 @@
   {{#each events}}
   <ul data-eventid="{{id}}">
     Name: <input type="text" class="eventNameInput" value="{{name}}" data-eventid="{{id}}">
-      <a href="#{{id}}">Edit</a> <button class="deleteButton" data-eventid="{{id}}">Delete</button> 
+      Survey ID: <input type="text" class="surveyIdInput" value="{{survey_id}}" data-eventid="{{id}}"> <a href="#{{id}}">Edit</a> <button class="deleteButton" data-eventid="{{id}}">Delete</button> 
   </ul>
   {{/each}}
   <hr>
