@@ -1,0 +1,8 @@
+<div>
+  {{#each events}}
+  <ul class="event" data-eventid="{{id}}">
+    Name: <input type="text" class="eventName" value="{{name}}" data-eventid="{{id}}">
+      <button class="deleteButton" data-eventid="{{id}}">Delete</button> 
+  </ul>
+  {{/each}}
+</div>

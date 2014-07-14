@@ -1,0 +1,5 @@
+{
+  "eventsBaseUrl": "http://localhost:3000/backend",
+  "eventsCollectionUrl": "events",
+  "eventsItemUrl": "events/:id"
+}

@@ -9,9 +9,10 @@ eventsRestClient = new RestClient(config.eventsBaseUrl,
 
 module.exports = ->
   eventsRestClient.getCollection((events)->
-    events = JSON.parse(events)
+    events = events
     mainDiv.innerHTML = template(events: events)
-    addDeleteButtonListeners() 
+    addDeleteButtonListeners()
+    addNameInputListeners()
   )
 
 deleteButtonClicked = (event) ->
@@ -21,13 +22,22 @@ deleteButtonClicked = (event) ->
   ulElement.parentElement.removeChild(ulElement);
   eventsRestClient.deleteItem(id)
 
+nameInputChanged = (event) ->
+  id = event.target.dataset.eventid
+  eventsRestClient.updateItem(id, name: event.target.value)
+
+
 addDeleteButtonListeners = -> 
   buttons = _.toArray(mainDiv.querySelectorAll('.deleteButton'))
-  buttons.map((b)-> b.onclick = deleteButtonClicked )
+  buttons.map((b)-> b.onclick = deleteButtonClicked)
 
-event = 
-  name: "test event #{Math.floor(Math.random()*10)}"
-  definition: "select * from pattern [android.location.Location]"
-  survey_id: 1
+addNameInputListeners = ->
+  inputs = _.toArray(mainDiv.querySelectorAll('.eventName'))
+  inputs.map((i)-> i.oninput = nameInputChanged)
 
-eventsRestClient.createItem(JSON.stringify(event), (r)-> console.log(r))
+# event = 
+#   name: "test event #{Math.floor(Math.random()*100)}"
+#   definition: "select * from pattern [android.location.Location]"
+#   survey_id: 1
+
+# eventsRestClient.createItem(JSON.stringify(event), (r)-> console.log(r))
