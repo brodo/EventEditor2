@@ -1,4 +1,3 @@
-d3 = require('d3')
 util = require('./util.coffee')
 Links = require('./event_links.coffee')
 createCondition = require('./condition.coffee')

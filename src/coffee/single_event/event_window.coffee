@@ -1,5 +1,3 @@
-d3 = require('d3')
-_ = require('lodash')
 util = require('./util.coffee')
 eplGenerator = require('./eplGenerator.coffee')
 Title = require('./event_window_title.coffee')

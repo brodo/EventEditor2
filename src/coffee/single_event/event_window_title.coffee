@@ -1,4 +1,3 @@
-d3 = require('d3')
 util = require('./util.coffee')
 module.exports = (refreshMain, d3Functions, removeEvent, eventTitleHeight) ->
   closeIconPoints = "438.393,374.595 319.757,255.977 438.378,137.348 

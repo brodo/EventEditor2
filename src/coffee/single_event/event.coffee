@@ -1,4 +1,3 @@
-_ = require('lodash')
 eventCount = 0 
 module.exports = (sensors, measures, getMainRect) -> (sensorName, x,y, relative) ->
   eventCount++

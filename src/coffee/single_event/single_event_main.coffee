@@ -1,7 +1,3 @@
-d3 = require('d3')
-_ = require('lodash')
-window.eventList = []
-window.connectionList = []
 createSidebar = require('./sidebar.coffee')
 eplGenerator = require('./eplGenerator.coffee')
 eplReader = require('./eplReader.coffee')
@@ -9,9 +5,17 @@ event = require('./event.coffee')
 RestClient = require('../rest_client')
 template = require('../../templates/event')
 mainDiv = document.querySelector('#main')
+config = require('../../data/test_config.json')
+eventsRestClient = new RestClient(config.eventsBaseUrl,
+  config.eventsCollectionUrl, 
+  config.eventsItemUrl,
+  csrfToken)
+
 createEvent = null
 getEplField = -> document.querySelector('#eplOutput')
-module.exports = ->
+module.exports = (id)->
+  window.eventList = []
+  window.connectionList = []
   mainDiv.innerHTML = template()
   eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
     enter()
@@ -43,13 +47,21 @@ module.exports = ->
     d3.select('#svgMain').node().getBoundingClientRect()
 
   d3.json("data/sensors.json", (err, sensors)->
-    enter()
-    createSidebar(addEvent, sensors)
-    createEvent = event(sensors, eventWindow.measures, getMainRect)
-    read = eplReader(createEvent, eventList, connectionList)
-    getEplField().oninput = ->
-      read(getEplField().value)
-      exit()
+    eventsRestClient.getItem(id, (result)->
+      epl = JSON.parse(result).definition
       enter()
-      update()
+      createSidebar(addEvent, sensors)
+      createEvent = event(sensors, eventWindow.measures, getMainRect)
+      read = eplReader(createEvent, eventList, connectionList)
+      eplChanged = ->
+        read(getEplField().value)
+        exit()
+        enter()
+        update()
+      getEplField().value = epl
+      getEplField().oninput = eplChanged
+      eplChanged()
+    )
   )
+
+    

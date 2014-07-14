@@ -1,4 +1,3 @@
-d3 = require('d3')
 util = require('util')
 connection = require('./connection.coffee')
 module.exports = (refreshMain, d3Functions, measures) ->
