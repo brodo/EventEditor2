@@ -1,8 +1,12 @@
 <div>
   {{#each events}}
-  <ul class="event" data-eventid="{{id}}">
-    Name: <input type="text" class="eventName" value="{{name}}" data-eventid="{{id}}">
+  <ul data-eventid="{{id}}">
+    Name: <input type="text" class="eventNameInput" value="{{name}}" data-eventid="{{id}}">
       <a href="#{{id}}">Edit</a> <button class="deleteButton" data-eventid="{{id}}">Delete</button> 
   </ul>
   {{/each}}
+  <hr>
+  <div>
+    Name: <input type="text" id="newEventName"> <button id="newEventButton">Create New Event</button>
+  </div>
 </div>

@@ -13,6 +13,7 @@ module.exports = ->
     mainDiv.innerHTML = template(events: events)
     addDeleteButtonListeners()
     addNameInputListeners()
+    addCreateNewEventButtonListener()
   )
 
 deleteButtonClicked = (event) ->
@@ -32,8 +33,16 @@ addDeleteButtonListeners = ->
   buttons.map((b)-> b.onclick = deleteButtonClicked)
 
 addNameInputListeners = ->
-  inputs = _.toArray(mainDiv.querySelectorAll('.eventName'))
+  inputs = _.toArray(mainDiv.querySelectorAll('.eventNameInput'))
   inputs.map((i)-> i.oninput = nameInputChanged)
+
+addCreateNewEventButtonListener = ->
+  button = document.querySelector('#newEventButton')
+  button.onclick = ->
+    nameInput = document.querySelector('#newEventName')
+    e = 
+      name: nameInput.value
+    eventsRestClient.createItem(e, -> location.reload())
 
 # event = 
 #   name: "test event #{Math.floor(Math.random()*100)}"
