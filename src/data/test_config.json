@@ -4,5 +4,7 @@
   "eventsItemUrl": "events/:id",
   "surveysBaseUrl": "http://localhost:3000/backend",
   "surveysCollectionUrl": "surveys",
-  "surveysItemUrl": "surveys/:id"
+  "surveysItemUrl": "surveys/:id",
+  "sensorsPath":"data/sensors.json",
+  "patternsPath":"data/patterns.json"
 }
