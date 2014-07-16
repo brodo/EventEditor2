@@ -1,0 +1,24 @@
+[
+  {
+    "name": "interval",
+    "displayName": "Interval",
+    "template": "every timer:interval({{timeInterval}} {{timeUnit}})",
+    "options": [
+      {
+        "name": "timeInterval",
+        "displayName": "Time Interval",
+        "type:": "number"
+      },
+      {
+        "name": "timeUnit",
+        "displayName": "Unit",
+        "type": "select",
+        "options":[
+          {"text": "seconds", "value": "sec"},
+          {"text": "minutes", "value": "min"},
+          {"text": "hours", "value": "hour"}
+        ]
+      }
+    ]
+  }
+]

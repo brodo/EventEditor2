@@ -1,0 +1,10 @@
+{
+  "eventsBaseUrl": "/backend",
+  "eventsCollectionUrl": "events",
+  "eventsItemUrl": "events/:id",
+  "surveysBaseUrl": "/backend",
+  "surveysCollectionUrl": "surveys",
+  "surveysItemUrl": "surveys/:id",
+  "sensorsPath":"/sensors.json",
+  "patternsPath":"/patterns.json"
+}

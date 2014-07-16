@@ -2,6 +2,7 @@ createSidebar = require('./sidebar.coffee')
 eplGenerator = require('./eplGenerator.coffee')
 eplReader = require('./eplReader.coffee')
 event = require('./event.coffee')
+pattern = require('./pattern.coffee')
 RestClient = require('../rest_client')
 template = require('../../templates/event')
 mainDiv = document.querySelector('#main')
@@ -11,11 +12,13 @@ eventsRestClient = new RestClient(config.eventsBaseUrl,
   csrfToken)
 
 createEvent = null
+createPattern = null
 getEplField = -> document.querySelector('#eplOutput')
 
 module.exports = (id)->
 
   window.eventList = []
+  window.patternList = []
   window.connectionList = []
   mainDiv.innerHTML = template()
   eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
@@ -41,9 +44,15 @@ module.exports = (id)->
     eventWindow.exit(eventList)
     d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
-  addEvent = (d,x,y, relative)->
+  addEvent = (d,x,y, relative) ->
     event = createEvent(d.name, x, y, false)
     eventList.push(event) 
+    enter()
+    update()
+
+  addPattern = (d, x, y, realative) ->
+    pattern = createPattern(d.name, x,y ,false)
+    patternList.push(pattern)
     enter()
     update()
 
@@ -61,8 +70,9 @@ module.exports = (id)->
     addSaveButtonListener()
     epl = savedEvent.definition
     enter()
-    createSidebar(addEvent, (->),sensors,patterns)
+    createSidebar(addEvent, addPattern ,sensors,patterns)
     createEvent = event(sensors, eventWindow.measures, getMainRect)
+    createPattern = pattern(patterns, eventWindow.measures, getMainRect)
     read = eplReader(createEvent, eventList, connectionList)
     eplChanged = ->
       read(getEplField().value)

@@ -1,0 +1,181 @@
+primaryColor = #00AB6F
+primaryColorLight = #60D5AC
+primaryColorLighter = #60D5AC
+primaryColorDark = #20805E
+primaryColorDarker = #006F48
+
+secondaryColor = #E9003A
+secondaryColorLight = #F43D6B
+secondaryColorLighter = #F46E8F
+secondaryColorDark = #AE2C4C
+secondaryColorDarker = #970026
+
+
+html, body, #main
+  height:100%
+  font-size: 62.5%
+  margin: 0
+  padding: 0
+  min-height: 500px
+  overflow:auto
+  
+
+#right
+  height: 100%
+  width: 80%
+  clear: both
+  right: 0
+  position: absolute
+
+#eplWorkspace
+  height: 70%
+  width: 100%
+  margin: 0
+  min-height: 600px
+  position: absolute
+  top: 10%
+  overflow: scroll
+
+#svgMain
+  height: 5000px
+  width: 5000px
+
+#sidebar
+  border-right: 2px solid black
+  height: 100%  
+  width:20%
+  position: absolute
+  margin-right: 0
+
+.eventType, .patternType 
+  border-radius: 15px
+  color:white;
+  font-size: 2rem
+  width: 80%
+  height: 60px
+  margin: 5px
+  text-align: center
+  padding-top: 30px
+  cursor: move
+
+.eventType
+  background-color: primaryColorLighter
+
+.patternType 
+  background-color: secondaryColorLighter
+
+.eventName
+  background-color: primaryColorLighter
+  color:white;
+  font-size: 1.5rem
+  overflow: auto
+
+.event
+  fill: primaryColorLighter
+
+.eventHtml
+  overflow: auto
+
+.eventInnerDiv
+  color:white
+  font-size: 1.5rem
+  overflow: auto
+  
+
+.parameters
+  overflow: auto
+  height: calc(100% - 25px)
+
+
+.eventName
+  clear: both
+
+.eventTitle
+  font-size: 2rem
+  fill: white
+  text-anchor: middle
+  cursor: move
+
+
+.eventTitleRect
+  fill: secondaryColorLighter
+  cursor: move
+
+.leftResizeBar, .rightResizeBar
+  cursor: ew-resize
+  opacity: 0
+
+.topResizeBar, .bottomResizeBar
+  cursor: ns-resize
+  opacity: 0
+
+.andRect, .followedByRect
+  fill: secondaryColorDark
+
+.connector
+  fill: none
+  stroke: black
+  stroke-width: 3
+
+.connectorCircle
+  fill: secondaryColorDark
+
+.connectorText
+  text-anchor: middle
+  font-size:1.5rem
+  dominant-baseline: central
+
+.andLabel, .followedByLabel
+  text-anchor: middle
+  font-size:1.2rem
+  dominant-baseline: central
+  fill: white
+
+.condition
+  margin-left: 1rem
+
+.valueInput:after
+  content "<br>"
+
+.whereWindow
+  background-color: primaryColorLight
+  border: solid
+  color: black
+  font-size: 1.5rem
+  padding: 5px
+  input
+    margin-left: 5px
+    width:30px
+  select
+    margin-left: 5px
+
+#topBar
+  position: absolute
+  top: 0
+  height: 10%
+  width: 100%
+  background-color: lightgray
+  margin: 0
+  border-left: 2px solid black
+  min-height: 50px
+     
+  .timeInterval
+    font-size: 1.5rem
+    padding-top: 1.5rem
+    margin-left: 1.5rem
+
+.footer
+  margin-top: 1rem;
+  position: absolute
+  bottom: 0
+  height: 20%
+  width: 100%
+  background-color: lightgray
+  border-left: 2px solid black
+  min-height: 100px
+
+#eplOutput
+  margin-left: 20px
+  height: 80px
+  width: 400px
+
