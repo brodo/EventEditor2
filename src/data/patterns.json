@@ -7,7 +7,8 @@
       {
         "name": "timeInterval",
         "displayName": "Time Interval",
-        "type:": "number"
+        "type": "number",
+        "description": ""
       },
       {
         "name": "timeUnit",
@@ -17,7 +18,8 @@
           {"text": "seconds", "value": "sec"},
           {"text": "minutes", "value": "min"},
           {"text": "hours", "value": "hour"}
-        ]
+        ],
+        "description": ""
       }
     ]
   }
