@@ -21,7 +21,7 @@ module.exports = (id)->
   window.patternList = []
   window.connectionList = []
   mainDiv.innerHTML = template()
-  eventWindow = require('./event_window.coffee')(eventList, connectionList, ->
+  windows = require('./windows.coffee')(eventList, patternList, connectionList, ->
     enter()
     exit()
     update()
@@ -30,18 +30,18 @@ module.exports = (id)->
   update = ->
     eplStr = eplGenerator(eventList, connectionList)
     if not (getEplField() == document.activeElement) then getEplField().value = eplStr
-    eventWindow.update(eventList)
+    windows.update(eventList)
 
 
   enter = ->
     eplStr = eplGenerator(eventList, connectionList)
     if not (getEplField() == document.activeElement) then getEplField().value = eplStr
-    eventWindow.enter()
+    windows.enter()
 
   exit = ->
     eplStr = eplGenerator(eventList, connectionList)
     if not (getEplField() == document.activeElement) then getEplField().value = eplStr
-    eventWindow.exit(eventList)
+    windows.exit(eventList)
     d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
 
   addEvent = (d,x,y, relative) ->
@@ -71,8 +71,8 @@ module.exports = (id)->
     epl = savedEvent.definition
     enter()
     createSidebar(addEvent, addPattern ,sensors,patterns)
-    createEvent = event(sensors, eventWindow.measures, getMainRect)
-    createPattern = pattern(patterns, eventWindow.measures, getMainRect)
+    createEvent = event(sensors, windows.measures, getMainRect)
+    createPattern = pattern(patterns, windows.measures, getMainRect)
     read = eplReader(createEvent, eventList, connectionList)
     eplChanged = ->
       read(getEplField().value)
