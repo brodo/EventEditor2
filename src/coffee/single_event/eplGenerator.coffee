@@ -20,6 +20,16 @@ parameterToEpl = (parameter) ->
   conditions = (conditionToEpl(condition, parameter) for condition in parameter.conditions)
   conditions.join('')
 
+toEpl = (thing) ->
+  if thing.type == "pattern" then patternToEpl(thing) else eventToEpl(thing)
+
+patternToEpl = (pattern) ->
+  template = pattern.template
+  for option in pattern.options
+    template = template.replace("{{#{option.name}}}", option.value or '')
+  console.log(template)
+  "#{template} or "
+
 eventToEpl = (event) ->
   attributesList = (parameterToEpl(parameter) for parameter in event.parameters)
   attributes = "(#{attributesList.join(' ')}) "
@@ -37,8 +47,9 @@ eventToEpl = (event) ->
   equals = if event.patternName == '' then '' else '='
   """#{openBracket}#{event.patternName}#{equals}#{event.name}#{attributes}#{whereClause}#{closedBracket} #{connectionSource?.type or 'or'} """
 
-module.exports = (eventList, connectionList)->
-  sortedEventList = _.sortBy(eventList, (e) -> calculateWeight(eventList, connectionList, e, 0) * -1)
-  eventEplList = (eventToEpl(event) for event in sortedEventList)
-  pattern = eventEplList.join('')
+module.exports = (eventList, patternList, connectionList)->
+  combinedList = eventList.concat(patternList)
+  sortedCombinedList = _.sortBy(combinedList, (e) -> calculateWeight(combinedList, connectionList, e, 0) * -1)
+  eplList = (toEpl(element) for element in sortedCombinedList)
+  pattern = eplList.join('')
   "select * from pattern [#{pattern[0..-5]}]"

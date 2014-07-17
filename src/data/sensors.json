@@ -1,6 +1,7 @@
 [
     {
         "name": "android.location.Location",
+        "type": "sensor",
         "displayName": "Location",
         "parameters": [
             {
@@ -23,6 +24,7 @@
     },
     {
         "name": "android.net.wifi.ScanResult",
+        "type": "sensor",
         "displayName": "Wifi",
         "parameters": [
             {

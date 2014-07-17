@@ -2,13 +2,15 @@
   {
     "name": "interval",
     "displayName": "Interval",
+    "type": "pattern",
     "template": "every timer:interval({{timeInterval}} {{timeUnit}})",
     "options": [
       {
         "name": "timeInterval",
         "displayName": "Time Interval",
         "type": "number",
-        "description": ""
+        "description": "",
+        "value": 1
       },
       {
         "name": "timeUnit",
@@ -19,7 +21,8 @@
           {"text": "minutes", "value": "min"},
           {"text": "hours", "value": "hour"}
         ],
-        "description": ""
+        "description": "",
+        "value": "sec"
       }
     ]
   }

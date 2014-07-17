@@ -67,7 +67,8 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
   d3Functions = {}
 
   windowEnter = (className, list, body, connectors, title, customize)->
-    if not (eplElement == document.activeElement) then eplElement.value = eplGenerator(eventList, connectionList)
+    if not (eplElement == document.activeElement) 
+      eplElement.value = eplGenerator(eventList, patternList, connectionList)
     util.debug and console.log("%c[EventWindow] %cEnter", util.greenBold, util.bold)
 
     windows = d3.select(".#{className}s").selectAll(".#{className}").data(list, (d)-> d.id)
@@ -116,7 +117,7 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
 
   windowUpdate = (className, list, body, connectors, title, customize) ->
     if not (eplElement == document.activeElement) 
-      eplElement.value = eplGenerator(eventList, connectionList)
+      eplElement.value = eplGenerator(eventList, patternList, connectionList)
     util.debug and console.log("%c[EventWindow] %cUpdate", util.greenBold, util.bold)
     windows = d3.select(".#{className}s")
       .selectAll(".#{className}")
@@ -170,7 +171,8 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
     if customize then customize()
   
   windowExit = (className, body, list) ->
-    if not (eplElement == document.activeElement) then eplElement.value = eplGenerator(eventList, connectionList)
+    if not (eplElement == document.activeElement)
+      eplElement.value = eplGenerator(eventList, patternList, connectionList)
     util.debug and console.log("%c[EventWindow] %cExit", util.greenBold, util.bold)
     d3.selectAll(".#{className}").data(list, (d)-> d.id).exit().remove()
     body.exit()

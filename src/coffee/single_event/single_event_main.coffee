@@ -28,18 +28,18 @@ module.exports = (id)->
   )
 
   update = ->
-    eplStr = eplGenerator(eventList, connectionList)
+    eplStr = eplGenerator(eventList, patternList, connectionList)
     if not (getEplField() == document.activeElement) then getEplField().value = eplStr
     windows.update(eventList)
 
 
   enter = ->
-    eplStr = eplGenerator(eventList, connectionList)
+    eplStr = eplGenerator(eventList, patternList, connectionList)
     if not (getEplField() == document.activeElement) then getEplField().value = eplStr
     windows.enter()
 
   exit = ->
-    eplStr = eplGenerator(eventList, connectionList)
+    eplStr = eplGenerator(eventList, patternList, connectionList)
     if not (getEplField() == document.activeElement) then getEplField().value = eplStr
     windows.exit(eventList)
     d3.selectAll('.connector').data(connectionList, (d)-> d.id).exit().remove()
@@ -59,7 +59,7 @@ module.exports = (id)->
   addSaveButtonListener = ->
     button = document.querySelector('.saveButton')
     button.onclick = -> 
-      eplStr = eplGenerator(eventList, connectionList)
+      eplStr = eplGenerator(eventList, patternList, connectionList)
       eventsRestClient.updateItem(id, definition: eplStr)
 
 
