@@ -1,6 +1,6 @@
 util = require('util')
 connection = require('./connection.coffee')
-module.exports = (className, refreshMain, d3Functions, measures) ->
+module.exports = (refreshMain, d3Functions, measures) ->
 
   connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('linear')
 
@@ -14,10 +14,10 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
       update()
     )
 
-  combinatorDrag = (connectionType) -> (d,i)->
-    connection = connectionList.filter((c)-> c.source == i)[0]
-    connection.type = connectionType
-    [start, middle, end] = connection.nodes
+  combinatorDrag = (connectionType) -> (d)->
+    conn = connectionList.filter((c)-> c.source == d.id)[0]
+    conn.type = connectionType
+    [start, middle, end] = conn.nodes
     newMiddle = d3.interpolateObject(start, end)(0.5)
     middle.x = newMiddle.x
     middle.y = newMiddle.y
@@ -26,44 +26,45 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
     refreshMain()
     d3Functions.update()
 
-  createCombinatorDragStart= (connectionType, nodePostion)-> (d,i)->
-    connections = connectionList.filter((e)-> e.source == i)
+  createCombinatorDragStart= (connectionType, nodePostion)-> (d)->
+    connections = connectionList.filter((e)-> e.source == d.id )
     if connections.length == 0
       nodes = [1,2,3].map(-> nodePostion(d))
-      connection = connection.create(nodes, connectionType, i, null)
-
-      connectionList.push(connection)
+      conn = connection.create(nodes, connectionType, d.id, null)
+      connectionList.push(conn)
     else
       connections[0].target = null
     d3Functions.enter()
     refreshMain()
 
   isLoop = ->
-    connectionList.length >= eventList.length
+    connectionList.length >= eventList.length + patternList.length
 
+  
 
   createCombinatorDragEnd = (connectionType, nodePostion)-> (d,i)->
-    connection = connectionList.filter((c)-> c.source == i and c.type == connectionType)[0]
-    [start, middle, end] = connection.nodes
-    connection.target = null
+    conn = connectionList.filter((c)-> c.source == d.id and c.type == connectionType )[0]
+    [start, middle, end] = conn.nodes
+    conn.target = null
     element = d3.event.sourceEvent.toElement
-    while element != null and element.tagName != 'body' and element.id[0..5] != 'event-'
+    while element != null and element.tagName != 'body' and element.id[..6] != "window-"
       element = element.parentElement
-    if element != null and element.tagName != 'body' and element.id != "event-#{i}"
-      target = parseInt(element.id[6..], 10)
+    if element != null and element.tagName != 'body' and element.id != "window-#{i}"
+      target = parseInt(element.id[7..], 10)
       index = _.findIndex(connectionList, (c)->
-        (c.source == i and c.target == target) or (c.source == target and c.target == i) 
+        (c.source == d.id and c.target == target) or (c.source == target and c.target == d.id) 
       )
       if index != -1 
         connectionList.splice(index,1)
       if isLoop()
         connectionList.pop()
-      connection.target = target
-      position = nodePostion(eventList[connection.target])
+      conn.target = target
+      node =  _.find(eventList.concat(patternList), id:conn.target)
+      position = nodePostion(node)
       end.x = position.x
       end.y = position.y
     else 
-      connectionList.splice(connectionList.indexOf(connection), 1)
+      connectionList.splice(connectionList.indexOf(conn), 1)
     d3Functions.exit()
     refreshMain()
     d3Functions.update()
@@ -78,13 +79,13 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
     .on("drag", combinatorDrag("->"))
     .on("dragend",createCombinatorDragEnd("->", (d)-> d.followedByRectMiddle()))
   
-  enter = (eventGroupEnter) ->
+  enter = (windowGroupEnter) ->
     util.debug and console.log("%c[EventWindowConnectors] %cEnter", util.greenBold, util.bold)
     addConnnectionAttribute = (d)->
       isVisible = d.where.visible
       d.where.visible = !isVisible
       exit()
-      enter(eventGroupEnter)
+      enter(windowGroupEnter)
     
     conn = d3.select('#svgMain').selectAll('.connector').data(connectionList, (d)-> d.id)
       .enter().append('g').attr('class', 'connector')
@@ -159,17 +160,17 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
     unitSelect.property('value', (d)-> d.where.timeUnit)
 
 
-    eventGroupEnter.append('rect')
+    windowGroupEnter.append('rect')
       .attr('class', 'andRect')
       .attr('width', measures.andCombinatorButtonWidth)
       .attr('height', measures.andCombinatorButtonHeight)
       .attr('rx', 5)
       .attr('dx', 5)
       .attr('y', (d)-> d.andRect().y)
-      .attr('x', (d) -> d.andRect().x)
+      .attr('x', (d)-> d.andRect().x)
       .call(dragAndRect) 
 
-    eventGroupEnter.append('text')
+    windowGroupEnter.append('text')
       .attr('class', 'andLabel')
       .attr('width', measures.andCombinatorButtonWidth)
       .attr('height', measures.andCombinatorButtonHeight)
@@ -178,7 +179,7 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
       .text('And')
       .call(dragAndRect)    
 
-    eventGroupEnter.append('rect')
+    windowGroupEnter.append('rect')
       .attr('class', 'followedByRect')
       .attr('width', measures.followedByCombinatorButtonWidth)
       .attr('height', measures.followedByCombinatorButtonHeight)
@@ -188,7 +189,7 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
       .attr('x', (d) -> d.followedByRect().x)
       .call(dragFollowedByRect) 
 
-    eventGroupEnter.append('text')
+    windowGroupEnter.append('text')
       .attr('class', 'followedByLabel')
       .attr('width', measures.followedByCombinatorButtonWidth)
       .attr('height', measures.followedByCombinatorButtonHeight)
@@ -200,7 +201,7 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
   update = ->
     connectionList.forEach((e)-> 
       [start, middle, end] = e.nodes
-      source = eventList[e.source]
+      source = _.find(eventList.concat(patternList), id:e.source) 
       if e.type == "and"
         start.x = source.andRectMiddle().x
         start.y = source.andRectMiddle().y
@@ -212,7 +213,7 @@ module.exports = (className, refreshMain, d3Functions, measures) ->
         middle.x = newMiddle.x
         middle.y = newMiddle.y
       if (typeof e.target) != 'undefined' and e.target != null
-        target = eventList[e.target]
+        target = _.find(eventList.concat(patternList), id:e.target)
         if e.type == "and"
           end.x = target.andRectMiddle().x
           end.y = target.andRectMiddle().y

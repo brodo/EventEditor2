@@ -73,7 +73,7 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
     windows = d3.select(".#{className}s").selectAll(".#{className}").data(list, (d)-> d.id)
     windowGroupEnter = windows.enter().append('g')
       .attr('class', className)
-      .attr('id', (d,i)-> "#{className}-#{i}")
+      .attr('id', (d,i)-> "window-#{d.id}")
 
     windowGroupEnter.append('rect')
       .attr('class', "#{className}Rect")
@@ -178,10 +178,10 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
   patternBody = PatternBody(refreshMain, d3Functions, measures)
   patternTitle = Title("patern",refreshMain, d3Functions, removePattern, measures.eventTitleHeight)
   eventBody = EventBody(refreshMain, d3Functions, measures)
-  eventConnectors = Connectors("event",refreshMain, d3Functions, measures)
+  connectors = Connectors(refreshMain, d3Functions, measures)
   title = Title("event",refreshMain, d3Functions, removeEvent, measures.eventTitleHeight)
   enter = ->
-    windowEnter('event', eventList, eventBody, eventConnectors, title, (windowGroupEnter) ->
+    windowEnter('event', eventList, eventBody, connectors, title, (windowGroupEnter) ->
       eventName = windowGroupEnter.append('foreignObject')
         .attr('class', 'eventNameContainer')
         .attr('x', (d)-> d.nameContainer().x)
@@ -200,17 +200,17 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
         .attr('value',(d)-> d.patternName)
     )
 
-    windowEnter('pattern', patternList, patternBody, eventConnectors, title)
+    windowEnter('pattern', patternList, patternBody, connectors, title)
 
   update = ->
-    windowUpdate('event', eventList, eventBody, eventConnectors, title, ->
+    windowUpdate('event', eventList, eventBody, connectors, title, ->
       d3.selectAll('.eventNameContainer')
         .attr('x', (d) -> d.nameContainer().x)
         .attr('y', (d) -> d.nameContainer().y)
         .attr('width', (d)-> d.width - 25)
     )
 
-    windowUpdate('pattern', patternList, patternBody, eventConnectors, title)
+    windowUpdate('pattern', patternList, patternBody, connectors, title)
 
   exit = ->
     windowExit("event", eventBody, eventList)

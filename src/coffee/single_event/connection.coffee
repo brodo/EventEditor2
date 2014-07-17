@@ -1,7 +1,7 @@
-create = (nodes, type, sourceIndex, targetIndex) ->
+create = (nodes, type, sourceId, targetId) ->
   nodes: nodes
-  target: targetIndex
-  source: sourceIndex
+  source: sourceId
+  target: targetId
   middleHasBeenDragged: false
   type: type
   id: Math.floor(Math.random()*1e15)

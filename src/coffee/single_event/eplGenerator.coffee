@@ -20,12 +20,12 @@ parameterToEpl = (parameter) ->
   conditions = (conditionToEpl(condition, parameter) for condition in parameter.conditions)
   conditions.join('')
 
-eventToEpl = (event, index) ->
+eventToEpl = (event) ->
   attributesList = (parameterToEpl(parameter) for parameter in event.parameters)
   attributes = "(#{attributesList.join(' ')}) "
   index = eventList.indexOf(event)
-  connectionSource = _.find(connectionList, source: index)
-  connectionTarget = _.find(connectionList, target: index)
+  connectionSource = _.find(connectionList, source: event.id)
+  connectionTarget = _.find(connectionList, target: event.id)
   isSourceOfWhereConnection = connectionSource and connectionSource.where.value
   isTargetOfWhereConnection = connectionTarget and connectionTarget.where.value
   openBracket = if isSourceOfWhereConnection then '(' else ''
@@ -39,6 +39,6 @@ eventToEpl = (event, index) ->
 
 module.exports = (eventList, connectionList)->
   sortedEventList = _.sortBy(eventList, (e) -> calculateWeight(eventList, connectionList, e, 0) * -1)
-  eventEplList = (eventToEpl(event) for event, index in sortedEventList)
+  eventEplList = (eventToEpl(event) for event in sortedEventList)
   pattern = eventEplList.join('')
   "select * from pattern [#{pattern[0..-5]}]"
