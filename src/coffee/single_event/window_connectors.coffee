@@ -1,6 +1,6 @@
 util = require('util')
 connection = require('./connection.coffee')
-module.exports = (refreshMain, d3Functions, measures) ->
+module.exports = (className, refreshMain, d3Functions, measures) ->
 
   connectorLine = d3.svg.line().x((d)-> d.x).y((d)->d.y).interpolate('linear')
 

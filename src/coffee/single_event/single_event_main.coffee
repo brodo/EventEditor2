@@ -5,7 +5,7 @@ event = require('./event.coffee')
 pattern = require('./pattern.coffee')
 RestClient = require('../rest_client')
 template = require('../../templates/event')
-mainDiv = document.querySelector('#main')
+mainDiv = document.querySelector('#event-main')
 eventsRestClient = new RestClient(config.eventsBaseUrl,
   config.eventsCollectionUrl, 
   config.eventsItemUrl,

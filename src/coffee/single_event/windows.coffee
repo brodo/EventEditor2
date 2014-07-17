@@ -3,7 +3,7 @@ eplGenerator = require('./eplGenerator.coffee')
 Title = require('./window_title.coffee')
 EventBody = require('./event_window_body.coffee')
 PatternBody = require('./pattern_window_body.coffee')
-Connectors = require('./event_window_connectors.coffee')
+Connectors = require('./window_connectors.coffee')
 eplElement = document.querySelector('#eplOutput')
 
 d3.selection.prototype.moveToFront = -> @each(-> @parentNode.appendChild(@))
@@ -178,7 +178,7 @@ module.exports = (eventList, patternList, connectionList, refreshMain) ->
   patternBody = PatternBody(refreshMain, d3Functions, measures)
   patternTitle = Title("patern",refreshMain, d3Functions, removePattern, measures.eventTitleHeight)
   eventBody = EventBody(refreshMain, d3Functions, measures)
-  eventConnectors = Connectors(refreshMain, d3Functions, measures)
+  eventConnectors = Connectors("event",refreshMain, d3Functions, measures)
   title = Title("event",refreshMain, d3Functions, removeEvent, measures.eventTitleHeight)
   enter = ->
     windowEnter('event', eventList, eventBody, eventConnectors, title, (windowGroupEnter) ->

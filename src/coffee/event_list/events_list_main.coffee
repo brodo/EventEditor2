@@ -1,6 +1,6 @@
 RestClient = require('../rest_client')
 template = require('../../templates/event_list')
-mainDiv = document.querySelector('#main')
+mainDiv = document.querySelector('#event-main')
 
 eventsRestClient = new RestClient(config.eventsBaseUrl,
   config.eventsCollectionUrl, 
