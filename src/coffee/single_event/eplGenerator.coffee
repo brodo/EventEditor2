@@ -25,10 +25,11 @@ toEpl = (thing) ->
 
 patternToEpl = (pattern) ->
   template = pattern.template
+  parts = template.split("'")
   for option in pattern.options
-    template = template.replace("{{#{option.name}}}", option.value or '')
-  console.log(template)
-  "#{template} or "
+    index = _.findIndex(parts, (part)-> _.contains(part, option.name))
+    parts[index] = option.value
+  "#{parts.join('')} or "
 
 eventToEpl = (event) ->
   attributesList = (parameterToEpl(parameter) for parameter in event.parameters)

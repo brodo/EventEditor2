@@ -3,15 +3,15 @@ createCondition = require('./condition.coffee')
 Connection = require('./connection.coffee')
 _ = require('lodash')
 d3 = require('d3')
-module.exports = (createEvent, events, connections) -> (epl) ->
+module.exports = (createEvent, createPattern, events, patterns, connections) -> (epl) ->
 
-  newEventCoordinates = ->
-    x: (events.length * 260) + 135
+  newCoordinates = ->
+    x: ((events.length + patterns.length) * 260) + 135
     y: 130
   newEvent = (patternFilter) ->
     patternName = patternFilter.name or ''
     name = patternFilter.stream.name
-    coord = newEventCoordinates()
+    coord = newCoordinates()
     e = createEvent(name, coord.x, coord.y, true)
     conditions = patternFilter.condition
     for parameter in e.parameters
@@ -34,6 +34,18 @@ module.exports = (createEvent, events, connections) -> (epl) ->
 
     e.patternName = patternName
     e
+
+  newPattern = (qualify) ->
+    name = qualify.patternType
+    coord = newCoordinates()
+    p = createPattern(name, coord.x, coord.y, true)
+
+    for key, value of qualify
+      if key == "patternType" then continue
+      option = _.find(p.options, name: key)
+      option.value = value.join('')
+    p
+
 
   newConnection = (type) ->
     fromEvent = events[events.length-2]
@@ -61,9 +73,20 @@ module.exports = (createEvent, events, connections) -> (epl) ->
       when "orPattern"
         createEventsAndConnections(event) for event in pattern.pattern
       else 
-        pf = pattern.qualify.guard.expression.patternFilter
-        e = newEvent(pf)
-        events.push(e)
+        # TODO: mark patterns with a comment
+        if pattern?.qualify?.guard?.expression?.patternFilter #it's an event
+          pf = pattern.qualify.guard.expression.patternFilter
+          e = newEvent(pf)
+          events.push(e)
+
+        if pattern?.qualify?.patternType # it's a predefined pattern
+          p = newPattern(pattern.qualify)
+          patterns.push(p)
+
+
+
+
+
 
   try
     parsingResult = parser.parse(epl)

@@ -73,7 +73,7 @@ module.exports = (id)->
     createSidebar(addEvent, addPattern ,sensors,patterns)
     createEvent = event(sensors, windows.measures, getMainRect)
     createPattern = pattern(patterns, windows.measures, getMainRect)
-    read = eplReader(createEvent, eventList, connectionList)
+    read = eplReader(createEvent, createPattern, eventList, patternList, connectionList)
     eplChanged = ->
       read(getEplField().value)
       exit()

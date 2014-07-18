@@ -3,7 +3,7 @@
     "name": "interval",
     "displayName": "Interval",
     "type": "pattern",
-    "template": "every timer:interval({{timeInterval}} {{timeUnit}})",
+    "template": "'every timer:interval(' timeInterval:[0-9]+ ' ' timeUnit:[a-z]+ ')'",
     "options": [
       {
         "name": "timeInterval",

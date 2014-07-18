@@ -24,15 +24,25 @@ module.exports = (refreshMain, d3Functions, measures) ->
       .append('input')
       .attr('class', 'pattentInput')
       .attr('type', 'number')
+      .property('value', (p)-> p.value)
+      .on('input', (p)-> 
+        p.value = @value
+        refreshMain()
+      )
 
     patternDiv.filter((p)-> p.type == "select")
       .append('select')
       .attr('class', 'pattenInput')
+      .on('change', (p)-> 
+        p.value = @value
+        refreshMain()
+      )
       .selectAll('.pattenSelectOption')
       .data((p)-> p.options).enter()
       .append('option')
       .attr('value', (p)-> p.value)
       .attr('class', 'pattenSelectOption')
+      .property('value', (p)-> p.value)
       .text((p)-> p.text)
 
   update: ->

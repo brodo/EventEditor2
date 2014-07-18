@@ -1,5 +1,5 @@
 meta = document.querySelector('meta[name="csrf-token"]')
-window.csrfToken = if meta then meta.content else ""
+window.csrfToken = if meta then meta.content else "t1jpiODT3yO/Gatbgu+tKj1HiYMn02b+lejnbFlmc5c="
 window.d3 = require('d3')
 window._ = require('lodash')
 window.config = require('../data/test_config.json')
