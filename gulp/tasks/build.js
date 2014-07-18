@@ -1,6 +1,8 @@
 var gulp = require('gulp');
 
-gulp.task('build', ['browserifyMain',
+gulp.task('build', [
+  'generateParser',
+  'browserifyMain',
   'copyHtml',
   'copyData',
   'stylus']);
