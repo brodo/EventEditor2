@@ -4,7 +4,7 @@ Connection = require('./connection.coffee')
 _ = require('lodash')
 d3 = require('d3')
 module.exports = (createEvent, createPattern, events, patterns, connections) -> (epl) ->
-
+  windows = []
   newCoordinates = ->
     x: ((events.length + patterns.length) * 260) + 135
     y: 130
@@ -48,15 +48,15 @@ module.exports = (createEvent, createPattern, events, patterns, connections) -> 
 
 
   newConnection = (type) ->
-    fromEvent = events[events.length-2]
-    toEvent = events[events.length-1]
-    fromNode = fromEvent.followedByRectMiddle()
-    toNode = toEvent.followedByRectMiddle()
+    fromWindow = windows[windows.length-2]
+    toWindow = windows[windows.length-1]
+    fromNode = fromWindow.followedByRectMiddle()
+    toNode = toWindow.followedByRectMiddle()
     middleNode = d3.interpolateObject(fromNode, toNode)(0.5)
     Connection.create([fromNode, middleNode, toNode],
       type, 
-      events.length-2,
-      events.length-1)
+      fromWindow.id,
+      toWindow.id)
 
 
 
@@ -78,23 +78,31 @@ module.exports = (createEvent, createPattern, events, patterns, connections) -> 
           pf = pattern.qualify.guard.expression.patternFilter
           e = newEvent(pf)
           events.push(e)
+          windows.push(e)
+          
 
         if pattern?.qualify?.patternType # it's a predefined pattern
           p = newPattern(pattern.qualify)
           patterns.push(p)
+          windows.push(p)
+          
 
 
 
-
-
+  parsingResult = null
 
   try
     parsingResult = parser.parse(epl)
-    events.splice(0)
-    connections.splice(0)
-    pattern = parsingResult.body.expression.from.stream.pattern
-    createEventsAndConnections(pattern)
   catch error
     console.log("Invalid EPL: ", error)
+  
+  if parsingResult
+    events.splice(0)
+    patterns.splice(0)
+    connections.splice(0)
+    windows.splice(0)
+    pattern = parsingResult.body.expression.from.stream.pattern
+    createEventsAndConnections(pattern)
+  
   
   

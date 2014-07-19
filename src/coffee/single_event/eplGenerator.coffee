@@ -29,7 +29,20 @@ patternToEpl = (pattern) ->
   for option in pattern.options
     index = _.findIndex(parts, (part)-> _.contains(part, option.name))
     parts[index] = option.value
-  "#{parts.join('')} or "
+  index = connectionList.indexOf(pattern)
+  connectionSource = _.find(connectionList, source: pattern.id)
+  connectionTarget = _.find(connectionList, target: pattern.id)
+  isSourceOfWhereConnection = connectionSource and connectionSource.where.value
+  isTargetOfWhereConnection = connectionTarget and connectionTarget.where.value
+  openBracket = if isSourceOfWhereConnection then '(' else ''
+  closedBracket = if isTargetOfWhereConnection then ')' else ''
+  whereClause = if isTargetOfWhereConnection
+    " where timer:within(#{connectionTarget.where.value} #{connectionTarget.where.timeUnit}) " 
+  else 
+    ''
+  "#{openBracket}#{parts.join('')}#{whereClause}#{closedBracket} #{connectionSource?.type or 'or'} "
+
+  
 
 eventToEpl = (event) ->
   attributesList = (parameterToEpl(parameter) for parameter in event.parameters)
